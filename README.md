@@ -8,6 +8,7 @@
 
 ### Implemented Examples
 * [XOR](/xor)
+* [MNIST](/xor)
 
 ## Convolutional Neural Networks
 
