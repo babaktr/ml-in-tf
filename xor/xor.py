@@ -33,7 +33,7 @@ sess = tf.InteractiveSession()
 # Input of two values
 x = tf.placeholder(tf.float32, shape=[None, 2])
 # Desired output of one value
-y = tf.placeholder(tf.float32, shape=[None, 1])
+y_ = tf.placeholder(tf.float32, shape=[None, 1])
 
 # Randomly initialize weights of layer 1
 W_1 = tf.Variable(tf.truncated_normal([2, settings.hidden_nodes]))
@@ -55,11 +55,11 @@ W_3 = tf.Variable(tf.truncated_normal([2,1]))
 b_3 = tf.Variable(tf.zeros([1]))
 
 # Output of one value
-y_ = tf.nn.sigmoid(tf.matmul(out_2, W_3) + b_3)
+y = tf.nn.sigmoid(tf.matmul(out_2, W_3) + b_3)
 
 # Objective/Error function 
-# E = - 1/2 (y_ - y)^2
-obj_function = 0.5 * tf.reduce_sum(tf.sub(y_, y) * tf.sub(y_, y))
+# E = - 1/2 (y - y_)^2
+obj_function = 0.5 * tf.reduce_sum(tf.sub(y, y_) * tf.sub(y, y_))
 
 if settings.optimizer.lower() == 'adam':
     # Adam Optimizer
@@ -88,7 +88,7 @@ for i in range (settings.epochs):
     # Run training
     _, err = sess.run([train_step, obj_function],
                         feed_dict={x: np.array(training_inputs),
-                                    y: np.array(training_outputs)})
+                                    y_: np.array(training_outputs)})
 
     stats.update(err, i)
     err_array.append(err)
