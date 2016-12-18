@@ -44,7 +44,7 @@ b = tf.Variable(tf.zeros([10]))
 # Output
 y = tf.nn.softmax(tf.matmul(x, W) + b)
 
-# Objective/Error function 
+# Objective/Error function - Cross Entropy
 # E = - SUM(y_ * log(y))
 obj_function = tf.reduce_mean(-tf.reduce_sum(y_ * tf.log(y), reduction_indices=[1]))
 

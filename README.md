@@ -16,6 +16,7 @@
 * [Convolutional Neural Networks (part of CS231 at Stanford)](http://cs231n.github.io/convolutional-networks/)
 
 ### Implemented Examples
+* [Deep MNIST](/deep-mnist)
 
 ## Recurrent Neural Networks
 
