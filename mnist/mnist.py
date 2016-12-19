@@ -66,6 +66,7 @@ summary_dir = '../logs/mnist-hidden{}-lr{}-minibatches{}-{}/'.format(10, setting
 summary_writer = tf.summary.FileWriter(summary_dir, sess.graph)
 stats = Stats(sess, summary_writer, 2)
 
+# Specify how accuracy is measured
 correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(y_,1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
