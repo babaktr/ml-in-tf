@@ -27,13 +27,13 @@
 
 ### Implemented Examples
 
-## Reinforcement Learning
+## Deep Reinforcement Learning
 
 ### Good reads
+* [Deep Reinforcement Learning: Pong from pixels](http://karpathy.github.io/2016/05/31/rl/)
 * [Dissecting Reinforcement Learning](https://mpatacchiola.github.io/blog/2016/12/09/dissecting-reinforcement-learning.html)
 * [Demystifying Deep Reinforcement Learning](https://www.nervanasys.com/demystifying-deep-reinforcement-learning/) - ([Part 1](https://www.nervanasys.com/demystifying-deep-reinforcement-learning/), [Part 2](https://www.nervanasys.com/deep-reinforcement-learning-with-neon/), [Part 3](https://www.nervanasys.com/openai/))
 * [Asynchronous Deep Reinforcement Learning from pixels](https://dbobrenko.github.io/2016/11/03/async-deeprl.html)
-* [UNsupervised REinforcement and Auxiliary Learning (UNREAL)](https://deepmind.com/blog/reinforcement-learning-unsupervised-auxiliary-tasks/)
 
 
 ### Implemented Examples

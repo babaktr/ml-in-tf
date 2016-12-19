@@ -24,8 +24,8 @@ def test_model():
     print('Accuracy on test set: {}'.format(sess.run(accuracy, feed_dict={x: mnist.test.images, y_: mnist.test.labels})))
 
 print('Starting session with: Minibatches: {} -- Learning Rate: {} -- Optimizer: {}'.format(settings.minibatches,
-                                                                                                            settings.learning_rate, 
-                                                                                                            settings.optimizer)) 
+                                                                                            settings.learning_rate, 
+                                                                                            settings.optimizer)) 
 
 sess = tf.InteractiveSession()
 

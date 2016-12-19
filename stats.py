@@ -11,7 +11,7 @@ class Stats(object):
         if stat_level == 1:
             scalar_summary_tags = ['loss']
         if stat_level == 2:
-            scalar_summary_tags = ['loss', 'accuracy']
+            scalar_summary_tags = ['network/loss', 'network/accuracy']
 
         self.summary_placeholders = {}
         self.summary_ops = {}
@@ -28,8 +28,8 @@ class Stats(object):
       }, batch)
     else: #stat_level == 2
       self.inject_summary({
-          'loss': loss,
-          'accuracy': accuracy
+          'network/loss': loss,
+          'network/accuracy': accuracy
       }, batch)
 
   def inject_summary(self, tag_dict, t):
