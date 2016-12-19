@@ -102,7 +102,7 @@ with tf.device(device):
         h_pool2_flat = tf.reshape(h_pool2, [-1, 7*7*64])
         h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
 
-    # Drop out to reduec overfitting
+    # Drop out to reduce overfitting
     keep_prob = tf.placeholder(tf.float32, name='keep-prob')
     h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)
 
