@@ -18,10 +18,10 @@ settings = flags.FLAGS
 
 def test_model():
     print ' --- TESTING MODEL ---'
-    print('[0.0, 0.0] -- Prediction: {}'.format(sess.run(y_, feed_dict={x: np.array([[0.0, 0.0]])})))
-    print('[0.0, 1.0] -- Prediction: {}'.format(sess.run(y_, feed_dict={x: np.array([[0.0, 1.0]])})))
-    print('[1.0, 0.0] -- Prediction: {}'.format(sess.run(y_, feed_dict={x: np.array([[1.0, 0.0]])})))
-    print('[1.0, 1.0] -- Prediction: {}'.format(sess.run(y_, feed_dict={x: np.array([[1.0, 1.0]])})))
+    print('[0.0, 0.0] -- Prediction: {}'.format(sess.run(y, feed_dict={x: np.array([[0.0, 0.0]])})))
+    print('[0.0, 1.0] -- Prediction: {}'.format(sess.run(y, feed_dict={x: np.array([[0.0, 1.0]])})))
+    print('[1.0, 0.0] -- Prediction: {}'.format(sess.run(y, feed_dict={x: np.array([[1.0, 0.0]])})))
+    print('[1.0, 1.0] -- Prediction: {}'.format(sess.run(y, feed_dict={x: np.array([[1.0, 1.0]])})))
 
 print('Starting session with: Epochs: {} -- Hidden Nodes: {} -- Learning Rate: {} -- Optimizer: {}'.format(settings.epochs, 
                                                                                                             settings.hidden_nodes, 
@@ -31,45 +31,49 @@ print('Starting session with: Epochs: {} -- Hidden Nodes: {} -- Learning Rate: {
 sess = tf.InteractiveSession()
 
 # Input of two values
-x = tf.placeholder(tf.float32, shape=[None, 2])
+x = tf.placeholder(tf.float32, shape=[None, 2], name='x-input')
 # Desired output of one value
-y_ = tf.placeholder(tf.float32, shape=[None, 1])
+y_ = tf.placeholder(tf.float32, shape=[None, 1], name='desired-output')
 
-# Randomly initialize weights of layer 1
-W_1 = tf.Variable(tf.truncated_normal([2, settings.hidden_nodes]))
-# Initialize theta/bias of layer 1
-b_1 = tf.Variable(tf.zeros([settings.hidden_nodes]))
+# Hidden layer 1 weights and bias
+W_1 = tf.Variable(tf.truncated_normal([2, settings.hidden_nodes]), name='weights-1')
+b_1 = tf.Variable(tf.zeros([settings.hidden_nodes]), name='bias-1')
 
-# Layer 1 output
-out_1 = tf.nn.sigmoid(tf.matmul(x, W_1) + b_1)
+# Hidden layer 1's output
+with tf.name_scope('hidden-layer-1') as scope:
+    out_1 = tf.nn.sigmoid(tf.matmul(x, W_1) + b_1)
 
-# Same for layer 2 (hidden layer 1)
-W_2 = tf.Variable(tf.truncated_normal([settings.hidden_nodes, 2]))
-b_2 = tf.Variable(tf.zeros([2]))
+# Hidden layer 2 weights and bias 
+W_2 = tf.Variable(tf.truncated_normal([settings.hidden_nodes, 2]), name='weights-2')
+b_2 = tf.Variable(tf.zeros([2]), name='bias-2')
 
-# Layer 2 output
-out_2 = tf.nn.sigmoid(tf.matmul(out_1, W_2) + b_2)
+# Hidden layer 2's output 
+with tf.name_scope('hidden-layer-2') as scope:
+    out_2 = tf.nn.sigmoid(tf.matmul(out_1, W_2) + b_2)
 
-# And layer 3 (hidden layer 2)
-W_3 = tf.Variable(tf.truncated_normal([2,1]))
-b_3 = tf.Variable(tf.zeros([1]))
+# Output layer weights and bias 
+W_3 = tf.Variable(tf.truncated_normal([2,1]), name='weights-3')
+b_3 = tf.Variable(tf.zeros([1]), name='bias-3')
 
-# Output of one value
-y = tf.nn.sigmoid(tf.matmul(out_2, W_3) + b_3)
+# Output layer's output
+with tf.name_scope('output-layer') as scope:
+    y = tf.nn.sigmoid(tf.matmul(out_2, W_3) + b_3)
 
-# Objective/Error function 
+# Objective function 
 # E = - 1/2 (y - y_)^2
-obj_function = 0.5 * tf.reduce_sum(tf.sub(y, y_) * tf.sub(y, y_))
+with tf.name_scope('error') as scope:
+    obj_function = 0.5 * tf.reduce_sum(tf.sub(y, y_) * tf.sub(y, y_))
 
-if settings.optimizer.lower() == 'adam':
-    # Adam Optimizer
-    train_step = tf.train.AdamOptimizer(settings.learning_rate).minimize(obj_function)
-elif settings.optimizer.lower() == 'rmsprop':
-    # RMSProp
-    train_step = tf.train.RMSPropOptimizer(settings.learning_rate).minimize(obj_function)
-else: 
-    # Gradient Descent
-    train_step = tf.train.GradientDescentOptimizer(settings.learning_rate).minimize(obj_function)
+with tf.name_scope('train') as scope:
+    if settings.optimizer.lower() == 'adam':
+        # Adam Optimizer
+        train_step = tf.train.AdamOptimizer(settings.learning_rate).minimize(obj_function)
+    elif settings.optimizer.lower() == 'rmsprop':
+        # RMSProp
+        train_step = tf.train.RMSPropOptimizer(settings.learning_rate).minimize(obj_function)
+    else: 
+        # Gradient Descent
+        train_step = tf.train.GradientDescentOptimizer(settings.learning_rate).minimize(obj_function)
 
 # Prepare training data
 training_inputs = [[0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 1.0]]

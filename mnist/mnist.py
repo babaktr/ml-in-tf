@@ -19,7 +19,7 @@ flags.DEFINE_boolean('run_test', True, 'If the final model should be tested')
 
 settings = flags.FLAGS
 
-def test_model(y, y_):
+def test_model():
     print ' --- TESTING MODEL ---'
     correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(y_,1))
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
@@ -32,31 +32,33 @@ print('Starting session with: Minibatches: {} -- Learning Rate: {} -- Optimizer:
 sess = tf.InteractiveSession()
 
 # Input of two values
-x = tf.placeholder(tf.float32, shape=[None, 784])
+x = tf.placeholder(tf.float32, shape=[None, 784], name='x-input')
 # Desired output of one value
-y_ = tf.placeholder(tf.float32, shape=[None, 10])
+y_ = tf.placeholder(tf.float32, shape=[None, 10], name='desired-output')
 
-# Randomly initialize weights of layer 1
-W = tf.Variable(tf.truncated_normal([784, 10]))
-# Initialize theta/bias of layer 1
-b = tf.Variable(tf.zeros([10]))
+# Hidden layer 1 weights and bias
+W = tf.Variable(tf.truncated_normal([784, 10]), name='weights-1')
+b = tf.Variable(tf.zeros([10]), name='bias-1')
 
 # Output
-y = tf.nn.softmax(tf.matmul(x, W) + b)
+with tf.name_scope('output') as scope:
+    y = tf.nn.softmax(tf.matmul(x, W) + b)
 
-# Objective/Error function - Cross Entropy
+# Objective function - Cross Entropy
 # E = - SUM(y_ * log(y))
-obj_function = tf.reduce_mean(-tf.reduce_sum(y_ * tf.log(y), reduction_indices=[1]))
+with tf.name_scope('error') as scope:
+    obj_function = tf.reduce_mean(-tf.reduce_sum(y_ * tf.log(y), reduction_indices=[1]))
 
-if settings.optimizer.lower() == 'adam':
-    # Adam Optimizer
-    train_step = tf.train.AdamOptimizer(settings.learning_rate).minimize(obj_function)
-elif settings.optimizer.lower() == 'rmsprop':
-    # RMSProp
-    train_step = tf.train.RMSPropOptimizer(settings.learning_rate).minimize(obj_function)
-else: 
-    # Gradient Descent
-    train_step = tf.train.GradientDescentOptimizer(settings.learning_rate).minimize(obj_function)
+with tf.name_scope('train') as scope:
+    if settings.optimizer.lower() == 'adam':
+        # Adam Optimizer
+        train_step = tf.train.AdamOptimizer(settings.learning_rate).minimize(obj_function)
+    elif settings.optimizer.lower() == 'rmsprop':
+        # RMSProp
+        train_step = tf.train.RMSPropOptimizer(settings.learning_rate).minimize(obj_function)
+    else: 
+        # Gradient Descent
+        train_step = tf.train.GradientDescentOptimizer(settings.learning_rate).minimize(obj_function)
 
 init = tf.global_variables_initializer()
 sess.run(init)
@@ -78,11 +80,11 @@ for i in range (settings.minibatches):
     err_array.append(err)
     if i % settings.average_summary == 0:
         # Print average
-        print "Minibatch: {}, Error: {}".format(i, np.average(err_array))
+        print 'Minibatch: {}, Error: {}'.format(i, np.average(err_array))
         err_array = []
 
 if settings.run_test:
-    test_model(y, y_)
+    test_model()
 
 
                 
