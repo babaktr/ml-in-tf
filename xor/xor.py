@@ -10,7 +10,7 @@ flags = tf.app.flags
 flags.DEFINE_integer('epochs', 20000, 'Number of epochs (batches) to run the training on.')
 flags.DEFINE_integer('hidden_nodes', 2, 'Number of nodes to use in the two hidden layers.')
 flags.DEFINE_float('learning_rate', 0.05, 'Learning rate of the optimizer.')
-flags.DEFINE_integer('average_summary', 1000, 'How often to print an average summary.')
+flags.DEFINE_integer('status_update', 1000, 'How often to print an status update.')
 flags.DEFINE_string('optimizer', 'gradent_descent', 'If another optimizer should be used [adam, rmsprop]. Defaults to gradient descent')
 flags.DEFINE_boolean('run_test', True, 'If the final model should be tested')
 
@@ -61,7 +61,7 @@ with tf.name_scope('output-layer') as scope:
 
 # Objective function 
 # E = - 1/2 (y - y_)^2
-with tf.name_scope('error') as scope:
+with tf.name_scope('loss') as scope:
     obj_function = 0.5 * tf.reduce_sum(tf.sub(y, y_) * tf.sub(y, y_))
 
 with tf.name_scope('train') as scope:
@@ -83,23 +83,25 @@ init = tf.global_variables_initializer()
 sess.run(init)
 
 # Statistics summary writer
-summary_dir = '../log/xor-hidden{}-lr{}-epochs{}-{}/'.format(settings.hidden_nodes, settings.learning_rate, settings.epochs, settings.optimizer)
+summary_dir = '../logs/xor-hidden{}-lr{}-epochs{}-{}/'.format(settings.hidden_nodes, settings.learning_rate, settings.epochs, settings.optimizer)
 summary_writer = tf.summary.FileWriter(summary_dir, sess.graph)
 stats = Stats(sess, summary_writer, 1)
 
-err_array = []
+correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(y_,1))
+accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+
 for i in range (settings.epochs): 
     # Run training
-    _, err = sess.run([train_step, obj_function],
+    _, loss = sess.run([train_step, obj_function],
                         feed_dict={x: np.array(training_inputs),
                                     y_: np.array(training_outputs)})
 
-    stats.update(err, i)
-    err_array.append(err)
-    if i % settings.average_summary == 0:
-        # Print average
-        print "Epoch: {}, Error: {}".format(i, np.average(err_array))
-        err_array = []
+
+
+    stats.update(i, loss)
+    if i % settings.status_update == 0:
+        # Print update
+        print "Epoch: {}, Loss: {}".format(i, loss)
 
 if settings.run_test:
     test_model()

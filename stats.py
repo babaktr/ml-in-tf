@@ -9,7 +9,9 @@ class Stats(object):
     self.writer = summary_writer
     with tf.variable_scope('summary'):
         if stat_level == 1:
-            scalar_summary_tags = ['error']
+            scalar_summary_tags = ['loss']
+        if stat_level == 2:
+            scalar_summary_tags = ['loss', 'accuracy']
 
         self.summary_placeholders = {}
         self.summary_ops = {}
@@ -19,10 +21,16 @@ class Stats(object):
         self.summary_ops[tag]  = tf.summary.scalar(tag, self.summary_placeholders[tag])
 
 
-  def update(self, error, epoch):
-    self.inject_summary({
-        'error': error
-    }, epoch)
+  def update(self, batch, loss, accuracy=None):
+    if self.stat_level == 1:
+      self.inject_summary({
+          'loss': loss
+      }, batch)
+    else: #stat_level == 2
+      self.inject_summary({
+          'loss': loss,
+          'accuracy': accuracy
+      }, batch)
 
   def inject_summary(self, tag_dict, t):
     summary_str_lists = self.sess.run([self.summary_ops[tag] for tag in tag_dict.keys()], {
