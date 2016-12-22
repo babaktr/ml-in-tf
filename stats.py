@@ -12,6 +12,8 @@ class Stats(object):
             scalar_summary_tags = ['loss']
         if stat_level == 2:
             scalar_summary_tags = ['network/loss', 'network/accuracy']
+        if stat_level == 3:
+          scalar_summary_tags = ['network/loss', 'network/accuracy', 'episode/avg_q_max', 'episode/epsilon', 'episode/reward', 'episode/steps']
 
         self.summary_placeholders = {}
         self.summary_ops = {}
@@ -21,16 +23,25 @@ class Stats(object):
         self.summary_ops[tag]  = tf.summary.scalar(tag, self.summary_placeholders[tag])
 
 
-  def update(self, batch, loss, accuracy=None):
+  def update(self, dictionary):
     if self.stat_level == 1:
       self.inject_summary({
-          'loss': loss
-      }, batch)
-    else: #stat_level == 2
+          'loss': dictionary['loss']
+      }, dictionary['step'])
+    elif self.stat_level == 2:
       self.inject_summary({
-          'network/loss': loss,
-          'network/accuracy': accuracy
-      }, batch)
+          'network/loss': dictionary['loss'],
+          'network/accuracy': dictionary['accuracy']
+      }, dictionary['step'])
+    else: #self.stat_level == 3
+      self.inject_summary({
+            'network/loss': dictionary['loss'],
+            'network/accuracy': dictionary['accuracy'],
+            'episode/avg_q_max': dictionary['qmax'],
+            'episode/epsilon': dictionary['epsilon'],
+            'episode/reward': dictionary['reward'],
+            'episode/steps':dictionary['steps']
+        }, dictionary['step'])
 
   def inject_summary(self, tag_dict, t):
     summary_str_lists = self.sess.run([self.summary_ops[tag] for tag in tag_dict.keys()], {
