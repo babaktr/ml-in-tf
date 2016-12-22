@@ -7,8 +7,8 @@
 * [Neural Networks and Deep Learning](http://neuralnetworksanddeeplearning.com/index.html)
 
 ### Implemented Examples
-* [XOR](/xor)
-* [MNIST](/mnist)
+* [XOR](/experiments/xor)
+* [MNIST](/experiments/mnist)
 
 ## Convolutional Neural Networks
 
@@ -16,7 +16,7 @@
 * [Convolutional Neural Networks (part of CS231 at Stanford)](http://cs231n.github.io/convolutional-networks/)
 
 ### Implemented Examples
-* [Deep MNIST](/deep-mnist)
+* [Deep MNIST](/experiments/deep-mnist)
 
 ## Recurrent Neural Networks
 
