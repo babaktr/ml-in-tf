@@ -18,7 +18,6 @@ flags.DEFINE_string('optimizer', 'gradent_descent', 'If another optimizer should
 flags.DEFINE_boolean('run_test', True, 'If the final model should be tested')
 flags.DEFINE_boolean('use_gpu', False, 'If it should run on GPU rather than CPU.')
 
-
 settings = flags.FLAGS
 
 def test_model():
