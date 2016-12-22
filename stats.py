@@ -22,7 +22,6 @@ class Stats(object):
         self.summary_placeholders[tag] = tf.placeholder('float32', None, name=tag.replace(' ', '_'))
         self.summary_ops[tag]  = tf.summary.scalar(tag, self.summary_placeholders[tag])
 
-
   def update(self, dictionary):
     if self.stat_level == 1:
       self.inject_summary({
