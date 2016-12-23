@@ -105,6 +105,4 @@ for i in range (settings.batches):
 
 if settings.run_test:
     test_model()
-
-
-                
+           
