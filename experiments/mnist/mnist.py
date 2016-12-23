@@ -14,7 +14,7 @@ flags = tf.app.flags
 flags.DEFINE_integer('minibatches', 1000, 'Number of minibatches to run the training on.')
 flags.DEFINE_float('learning_rate', 0.5, 'Learning rate of the optimizer.')
 flags.DEFINE_integer('status_update', 100, 'How often to print an status update.')
-flags.DEFINE_string('optimizer', 'gradent_descent', 'If another optimizer should be used [adam, rmsprop]. Defaults to gradient descent')
+flags.DEFINE_string('optimizer', 'gradent_descent', 'Specifices optimizer to use [adam, rmsprop]. Defaults to gradient descent')
 flags.DEFINE_boolean('run_test', True, 'If the final model should be tested')
 
 settings = flags.FLAGS
@@ -91,6 +91,3 @@ for i in range (settings.minibatches):
 
 if settings.run_test:
     test_model()
-
-
-                
