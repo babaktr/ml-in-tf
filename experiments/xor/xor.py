@@ -96,8 +96,6 @@ for i in range (settings.batches):
                         feed_dict={x: np.array(training_inputs),
                                     y_: np.array(training_outputs)})
 
-
-
     stats.update({'loss': loss, 'step': i})
     if i % settings.status_update == 0:
         # Print update
