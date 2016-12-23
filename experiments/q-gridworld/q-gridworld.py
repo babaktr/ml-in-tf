@@ -11,15 +11,19 @@ from gridworld import GridWorld
 
 flags = tf.app.flags
 
+# Q Learning settings
 flags.DEFINE_integer('episodes', 100, 'Number of minibatches to run the training on.')
+flags.DEFINE_float('gamma', 0.99, 'Discount to use when Q-value is updated.')
 flags.DEFINE_float('initial_epsilon', 1.0, 'Initial epsilon value that epsilon will be annealed from.')
 flags.DEFINE_float('final_epsilon', 0.1, 'Final epsilon value that epsilon will be annealed to.')
-flags.DEFINE_float('test_epsilon', 0.1, 'Epsilon to use on test run.')
-flags.DEFINE_float('gamma', 0.99, 'Discount to use when Q-value is updated.')
+
+# Training settings
 flags.DEFINE_float('learning_rate', 0.5, 'Learning rate of the optimizer.')
 
+# General settings
+flags.DEFINE_float('test_epsilon', 0.1, 'Epsilon to use on test run.')
 flags.DEFINE_boolean('run_test', True, 'If the final model should be tested')
-flags.DEFINE_integer('random_seed', 1, 'Number of minibatches to run the training on.')
+flags.DEFINE_integer('random_seed', 123, 'Number of minibatches to run the training on.')
 
 settings = flags.FLAGS                                      
 
