@@ -34,7 +34,7 @@ class Stats(object):
           'network/loss': dictionary['loss'],
           'network/accuracy': dictionary['accuracy']
       }, dictionary['step'])
-    elif self.stat_level == 3
+    elif self.stat_level == 3:
       self.inject_summary({
             'episode/avg_q_max': dictionary['qmax'],
             'episode/epsilon': dictionary['epsilon'],
