@@ -6,7 +6,7 @@ It is currently under construction, but if you have any feedback or comments, I'
 
 ## Neural Networks
 <p align="center">
-  <img src="images/nn.png", width="20%" height="20%"/>
+  <img src="images/nn.png", width="25%" height="25%"/>
 </p>
 
 
@@ -20,7 +20,7 @@ It is currently under construction, but if you have any feedback or comments, I'
 
 ## Convolutional Neural Networks
 <p align="center">
-  <img src="images/conv.png", width="30%" height="30%"/>
+  <img src="images/conv.png", width="35%" height="35%"/>
 </p>
 
 ### Good Reads
