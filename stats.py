@@ -41,7 +41,7 @@ class Stats(object):
             'episode/reward': dictionary['reward'],
             'episode/steps':dictionary['steps']
         }, dictionary['step'])
-    else # self.stat_level == 4
+    else: # self.stat_level == 4
       self.inject_summary({
             'network/loss': dictionary['loss'],
             'network/accuracy': dictionary['accuracy'],
