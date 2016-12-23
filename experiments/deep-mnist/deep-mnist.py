@@ -27,8 +27,6 @@ def test_model():
                                                         y_: mnist.test.labels, 
                                                         keep_prob: 1.0})))
 
-    #print('Accuracy on test set: {}'.format(sess.run(accuracy, feed_dict={x: mnist.test.images, y_: mnist.test.labels})))
-
 def weight_variable(shape, name):
   initial = tf.truncated_normal(shape, stddev=0.1)
   return tf.Variable(initial, name=name)
