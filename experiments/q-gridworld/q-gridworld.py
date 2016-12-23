@@ -6,7 +6,6 @@ import numpy as np
 import tensorflow as tf
 from stats import Stats
 
-import random
 from gridworld import GridWorld
 
 flags = tf.app.flags
@@ -22,6 +21,7 @@ flags.DEFINE_float('learning_rate', 0.5, 'Learning rate of the optimizer.')
 
 # General settings
 flags.DEFINE_float('test_epsilon', 0.1, 'Epsilon to use on test run.')
+flags.DEFINE_integer('status_update', 10, 'How often to print an status update.')
 flags.DEFINE_boolean('run_test', True, 'If the final model should be tested')
 flags.DEFINE_integer('random_seed', 123, 'Number of minibatches to run the training on.')
 
@@ -29,14 +29,15 @@ settings = flags.FLAGS
 
 env = GridWorld(settings.random_seed)
 sess = tf.InteractiveSession()
-
-episode = 0
-epsilon = settings.initial_epsilon
+np.random.seed(settings.random_seed)
 
 summary_dir = '../../logs/q-gridworld-episodes{}-lr{}/'.format(settings.episodes, 
     settings.learning_rate)
 summary_writer = tf.summary.FileWriter(summary_dir, sess.graph)
 stats = Stats(sess, summary_writer, 3)
+
+episode = 0
+epsilon = settings.initial_epsilon
 
 while settings.episodes > episode:
     # Prepare environment for playing
@@ -59,13 +60,13 @@ while settings.episodes > episode:
 
         # Anneal epsilon
         if epsilon > settings.final_epsilon: 
-            epsilon = settings.initial_epsilon - (2*episode / float(settings.episodes))
+            epsilon = settings.initial_epsilon - (3*episode / float(settings.episodes))
         else: 
             # Final epsilon reached, stop annealing.
             epsilon = settings.final_epsilon
 
         # Select action
-        if (random.random() < epsilon): 
+        if (np.random.random() < epsilon): 
             # Choose random action
             action = np.random.randint(0,4)
         else: 
@@ -100,10 +101,11 @@ while settings.episodes > episode:
                 'reward': np.sum(reward_arr),
                 'steps': step,
                 'step': episode
-                })    
-    print 'Episode: {}, Steps: {}, Total Reward: {}, Avg Q-max: {}, Avg Epsilon: {}'.format(episode, 
-        step, format(np.sum(reward_arr), '.1f'), format(np.average(q_max_arr), '.2f'),
-        format(np.average(epsilon_arr), '.2f'))
+                })
+    if episode % settings.status_update == 0:    
+        print 'Episode: {}, Steps: {}, Total Reward: {}, Avg Q-max: {}, Avg Epsilon: {}'.format(episode, 
+            step, format(np.sum(reward_arr), '.1f'), format(np.average(q_max_arr), '.2f'),
+            format(np.average(epsilon_arr), '.2f'))
 
 
 
@@ -127,7 +129,7 @@ if settings.run_test:
             q_values = env.q_values()
             q_max = np.max(q_values)
 
-            if (random.random() < settings.test_epsilon): 
+            if (np.random.random() < settings.test_epsilon): 
                 action = np.random.randint(0,4)
             else: 
                 action = np.argmax(q_values)

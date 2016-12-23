@@ -16,6 +16,7 @@ It is currently under construction, but if you have any feedback or comments, I'
 
 ### Implemented Examples
 * [XOR](/experiments/xor)
+* [NN-Gridworld](/experiments/nn-gridworld)
 * [MNIST](/experiments/mnist)
 
 ## Convolutional Neural Networks
