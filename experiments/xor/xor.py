@@ -23,7 +23,7 @@ def test_model():
     print('[1.0, 0.0] -- Prediction: {}'.format(sess.run(y, feed_dict={x: np.array([[1.0, 0.0]])})))
     print('[1.0, 1.0] -- Prediction: {}'.format(sess.run(y, feed_dict={x: np.array([[1.0, 1.0]])})))
 
-print('Starting session with: Batches: {} -- Hidden Nodes: {} -- Learning Rate: {} -- Optimizer: {}'.format(settings.epochs, 
+print('Starting session with: Batches: {} -- Hidden Nodes: {} -- Learning Rate: {} -- Optimizer: {}'.format(settings.batches, 
                                                                                                             settings.hidden_nodes, 
                                                                                                             settings.learning_rate, 
                                                                                                             settings.optimizer)) 
@@ -83,7 +83,7 @@ init = tf.global_variables_initializer()
 sess.run(init)
 
 # Statistics summary writer
-summary_dir = '../logs/xor-hidden{}-lr{}-batches{}-{}/'.format(settings.hidden_nodes, settings.learning_rate, settings.epochs, settings.optimizer)
+summary_dir = '../logs/xor-hidden{}-lr{}-batches{}-{}/'.format(settings.hidden_nodes, settings.learning_rate, settings.batches, settings.optimizer)
 summary_writer = tf.summary.FileWriter(summary_dir, sess.graph)
 stats = Stats(sess, summary_writer, 1)
 
@@ -98,7 +98,7 @@ for i in range (settings.batches):
 
 
 
-    stats.update(i, loss)
+    stats.update({'loss': loss, 'step': i})
     if i % settings.status_update == 0:
         # Print update
         print "Batch: {}, Loss: {}".format(i, loss)
