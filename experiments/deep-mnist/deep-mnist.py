@@ -48,8 +48,8 @@ def max_pool_2x2(x):
 
 
 print('Starting session with: Minibatches: {} -- Learning Rate: {} -- Optimizer: {}'.format(settings.minibatch_size,
-                                                                                                            settings.learning_rate, 
-                                                                                                            settings.optimizer)) 
+                                                                                            settings.learning_rate, 
+                                                                                            settings.optimizer)) 
 
 if settings.use_gpu:
     device = '/gpu:0'

@@ -10,10 +10,12 @@ class Stats(object):
     with tf.variable_scope('summary'):
         if stat_level == 1:
             scalar_summary_tags = ['loss']
-        if stat_level == 2:
+        elif stat_level == 2:
             scalar_summary_tags = ['network/loss', 'network/accuracy']
-        if stat_level == 3:
-          scalar_summary_tags = ['network/loss', 'network/accuracy', 'episode/avg_q_max', 'episode/epsilon', 'episode/reward', 'episode/steps']
+        elif stat_level == 3:
+            scalar_summary_tags = ['episode/avg_q_max', 'episode/epsilon', 'episode/reward', 'episode/steps']
+        elif stat_level == 4:
+            scalar_summary_tags = ['network/loss', 'network/accuracy', 'episode/avg_q_max', 'episode/epsilon', 'episode/reward', 'episode/steps']
 
         self.summary_placeholders = {}
         self.summary_ops = {}
@@ -32,7 +34,14 @@ class Stats(object):
           'network/loss': dictionary['loss'],
           'network/accuracy': dictionary['accuracy']
       }, dictionary['step'])
-    else: #self.stat_level == 3
+    elif self.stat_level == 3
+      self.inject_summary({
+            'episode/avg_q_max': dictionary['qmax'],
+            'episode/epsilon': dictionary['epsilon'],
+            'episode/reward': dictionary['reward'],
+            'episode/steps':dictionary['steps']
+        }, dictionary['step'])
+    else # self.stat_level == 4
       self.inject_summary({
             'network/loss': dictionary['loss'],
             'network/accuracy': dictionary['accuracy'],
