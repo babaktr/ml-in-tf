@@ -57,6 +57,7 @@ while settings.episodes > episode:
         if epsilon > settings.final_epsilon: 
             epsilon = settings.initial_epsilon - (2*episode / float(settings.episodes))
         else: 
+            # Final epsilon reached, stop annealing.
             epsilon = settings.final_epsilon
 
         # Select action
