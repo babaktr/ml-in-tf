@@ -27,7 +27,7 @@
 
 ### Implemented Examples
 
-## Deep Reinforcement Learning
+## Reinforcement Learning
 
 ### Good reads
 * [Deep Reinforcement Learning: Pong from pixels](http://karpathy.github.io/2016/05/31/rl/)
@@ -37,4 +37,4 @@
 
 
 ### Implemented Examples
-
+* [Q-Gridworld](/experiments/q-gridworld)
