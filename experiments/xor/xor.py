@@ -88,6 +88,7 @@ summary_dir = '../logs/xor-hidden{}-lr{}-batches{}-{}/'.format(settings.hidden_n
 summary_writer = tf.summary.FileWriter(summary_dir, sess.graph)
 stats = Stats(sess, summary_writer, 1)
 
+# Set up how to measure accuracy
 correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(y_,1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
