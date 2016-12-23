@@ -11,7 +11,7 @@ flags.DEFINE_integer('batches', 20000, 'Number of batches (epochs) to run the tr
 flags.DEFINE_integer('hidden_nodes', 2, 'Number of nodes to use in the two hidden layers.')
 flags.DEFINE_float('learning_rate', 0.05, 'Learning rate of the optimizer.')
 flags.DEFINE_integer('status_update', 1000, 'How often to print an status update.')
-flags.DEFINE_string('optimizer', 'gradent_descent', 'If another optimizer should be used [adam, rmsprop]. Defaults to gradient descent')
+flags.DEFINE_string('optimizer', 'gradent_descent', 'Specifices optimizer to use [adam, rmsprop]. Defaults to gradient descent')
 flags.DEFINE_boolean('run_test', True, 'If the final model should be tested')
 
 settings = flags.FLAGS
@@ -64,6 +64,7 @@ with tf.name_scope('output-layer') as scope:
 with tf.name_scope('loss') as scope:
     obj_function = 0.5 * tf.reduce_sum(tf.sub(y, y_) * tf.sub(y, y_))
 
+# Set optimizer
 with tf.name_scope('train') as scope:
     if settings.optimizer.lower() == 'adam':
         # Adam Optimizer
