@@ -5,6 +5,10 @@ The purpose of this repo is to offer anyone who wants to get started with using 
 It is currently under construction, but if you have any feedback or comments, I'd gladly hear them!
 
 ## Neural Networks
+<p align="center">
+  <img src="images/nn.png", width="20%" height="20%"/>
+</p>
+
 
 ### Good Reads
 * [Neural Networks (part of CS231 at Stanford)](http://cs231n.github.io/neural-networks-1/) - ([Part 1](http://cs231n.github.io/neural-networks-1/), [Part 2](http://cs231n.github.io/neural-networks-2/), [Part 3](http://cs231n.github.io/neural-networks-3/))
@@ -15,6 +19,9 @@ It is currently under construction, but if you have any feedback or comments, I'
 * [MNIST](/experiments/mnist)
 
 ## Convolutional Neural Networks
+<p align="center">
+  <img src="images/conv.png", width="30%" height="30%"/>
+</p>
 
 ### Good Reads
 * [Convolutional Neural Networks (part of CS231 at Stanford)](http://cs231n.github.io/convolutional-networks/)
