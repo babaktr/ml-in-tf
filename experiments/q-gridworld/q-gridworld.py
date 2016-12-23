@@ -138,7 +138,7 @@ if settings.run_test:
             q_max_arr.append(q_max)
             
         print 'Run: {}, Steps: {}, Total Reward: {}, Avg Q-max: {}'.format(n, 
-        step, format(np.sum(reward_arr), '.1f'), format(np.average(q_max_arr), '.2f'))
+            step, format(np.sum(reward_arr), '.1f'), format(np.average(q_max_arr), '.2f'))
 
         steps.append(step)
         rewards.append(np.average(reward_arr))
