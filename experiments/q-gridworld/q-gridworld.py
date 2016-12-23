@@ -80,9 +80,9 @@ while settings.episodes > episode:
         reward_arr.append(reward)
         q_max_arr.append(q_max)
         
-        # Get the new state's Q-values
+        # Get the new states Q-values
         q_values_new = env.q_values()
-
+        # Get max(Q(s',a')) to update Q(s,a)
         q_max_new = np.max(q_values_new)
         
         if not terminal: 
