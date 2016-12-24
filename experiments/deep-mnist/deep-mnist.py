@@ -11,7 +11,7 @@ mnist = input_data.read_data_sets("../data/MNIST_data/", one_hot=True)
 
 flags = tf.app.flags
 
-flags.DEFINE_integer('minibatch_size', 20000, 'Number of minibatches to run the training on.')
+flags.DEFINE_integer('minibatches', 20000, 'Number of minibatches to run the training on.')
 flags.DEFINE_float('learning_rate', 0.001, 'Learning rate of the optimizer.')
 flags.DEFINE_integer('status_update', 100, 'How often to print an status update.')
 flags.DEFINE_string('optimizer', 'gradent_descent', 'If another optimizer should be used [adam, rmsprop]. Defaults to gradient descent')
@@ -45,7 +45,7 @@ def max_pool_2x2(x):
                        	padding='SAME')
 
 
-print('Starting session with: Minibatches: {} -- Learning Rate: {} -- Optimizer: {}'.format(settings.minibatch_size,
+print('Starting session with: Minibatches: {} -- Learning Rate: {} -- Optimizer: {}'.format(settings.minibatches,
                                                                                             settings.learning_rate, 
                                                                                             settings.optimizer)) 
 
@@ -128,7 +128,7 @@ with tf.device(device):
     sess.run(init)
 
     # Statistics summary writer
-    summary_dir = '../../logs/deep-mnist-hidden{}-lr{}-minibatch{}-{}/'.format(10, settings.learning_rate, settings.minibatch_size, settings.optimizer)
+    summary_dir = '../../logs/deep-mnist-hidden{}-lr{}-minibatch{}-{}/'.format(10, settings.learning_rate, settings.minibatches, settings.optimizer)
     summary_writer = tf.summary.FileWriter(summary_dir, sess.graph)
     stats = Stats(sess, summary_writer, 2)
 
@@ -136,7 +136,7 @@ with tf.device(device):
     correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(y_,1))
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
-    for i in range (settings.minibatch_size): 
+    for i in range (settings.minibatches): 
         # Get minibatch
         batch = mnist.train.next_batch(50)
 
