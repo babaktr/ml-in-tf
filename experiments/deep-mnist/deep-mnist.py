@@ -12,6 +12,7 @@ mnist = input_data.read_data_sets("../data/MNIST_data/", one_hot=True)
 flags = tf.app.flags
 
 flags.DEFINE_integer('minibatches', 20000, 'Number of minibatches to run the training on.')
+flags.DEFINE_integer('minibatch_size', 50, 'Number of samples in each minibatch.')
 flags.DEFINE_float('learning_rate', 0.001, 'Learning rate of the optimizer.')
 flags.DEFINE_integer('status_update', 100, 'How often to print an status update.')
 flags.DEFINE_string('optimizer', 'gradent_descent', 'If another optimizer should be used [adam, rmsprop]. Defaults to gradient descent')
@@ -138,7 +139,7 @@ with tf.device(device):
 
     for i in range (settings.minibatches): 
         # Get minibatch
-        batch = mnist.train.next_batch(50)
+        batch = mnist.train.next_batch(settings.minibatch_size)
 
         # Run training
         _, loss = sess.run([train_step, obj_function],
