@@ -87,7 +87,8 @@ for i in range (settings.minibatches):
 
     if i % settings.status_update == 0:
         # Print update
-        print 'Minibatch: {}, Loss: {}, Accuracy: {}'.format(i, loss, acc)
+        print 'Minibatch: {}, Loss: {}, Accuracy: {}'.format(i, 
+            format(loss, '.4f'), format(acc, '.4f'))
 
 if settings.run_test:
     test_model()
