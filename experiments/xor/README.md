@@ -14,7 +14,7 @@ This experiment implements a small Neural Network (or a Multilayer Perceptron) w
 
 ## Plot
 <p align="center">
-  <img src="../../images/plots/xor-plot.png">
+  <img src="../../images/plots/xor-plot.png", width="70%" height="70%"/>
 </p>
 Example graph showing the error over batches/epochs with <b style='color:orange'>one hidden node</b>, <b style='color:LightSeaGreen'>two hidden nodes</b> and <b style='color:purple'>three hidden nodes</b>.
 
