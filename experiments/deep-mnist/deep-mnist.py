@@ -155,7 +155,8 @@ with tf.device(device):
 
         if i % settings.status_update == 0:
             # Print update
-            print "Minibatch: {}, Loss: {}, Accuracy: {}".format(i, loss, acc)
+            print 'Batch: {}, Loss: {}, Accuracy: {}'.format(i, 
+                format(loss, '.4f'), format(acc, '.4f'))
 
     if settings.run_test:
         test_model()
