@@ -16,7 +16,6 @@ It is currently under construction, but if you have any feedback or comments, I'
 
 ### Implemented Examples
 * [XOR](/experiments/xor)
-* [NN-Gridworld](/experiments/nn-gridworld)
 * [MNIST](/experiments/mnist)
 
 ## Convolutional Neural Networks
@@ -39,7 +38,7 @@ It is currently under construction, but if you have any feedback or comments, I'
 
 ### Implemented Examples
 
-## Reinforcement Learning
+## Reinforcement Learning (with Neural Networks)
 
 ### Good reads
 * [Deep Reinforcement Learning: Pong from pixels](http://karpathy.github.io/2016/05/31/rl/)
@@ -50,3 +49,4 @@ It is currently under construction, but if you have any feedback or comments, I'
 
 ### Implemented Examples
 * [Q-Gridworld](/experiments/q-gridworld)
+* [NN-Gridworld](/experiments/nn-gridworld)

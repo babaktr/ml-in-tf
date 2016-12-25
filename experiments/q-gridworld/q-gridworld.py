@@ -20,6 +20,7 @@ flags.DEFINE_float('final_epsilon', 0.1, 'Final epsilon value that epsilon will 
 flags.DEFINE_float('learning_rate', 0.5, 'Learning rate of the optimizer.')
 
 # General settings
+flags.DEFINE_integer('field_size', 4, 'Determines width and height of the Gridworld field.')
 flags.DEFINE_float('test_epsilon', 0.1, 'Epsilon to use on test run.')
 flags.DEFINE_integer('status_update', 10, 'How often to print an status update.')
 flags.DEFINE_boolean('run_test', True, 'If the final model should be tested')
@@ -27,12 +28,12 @@ flags.DEFINE_integer('random_seed', 123, 'Number of minibatches to run the train
 
 settings = flags.FLAGS                                      
 
-env = GridWorld(settings.random_seed)
+env = GridWorld(settings.field_size, settings.random_seed)
 sess = tf.InteractiveSession()
 np.random.seed(settings.random_seed)
 
-summary_dir = '../../logs/q-gridworld-episodes{}-lr{}/'.format(settings.episodes, 
-    settings.learning_rate)
+summary_dir = '../../logs/q-gridworld-fieldsize{}-episodes{}-lr{}/'.format(settings.field_size,
+    settings.episodes, settings.learning_rate)
 summary_writer = tf.summary.FileWriter(summary_dir, sess.graph)
 stats = Stats(sess, summary_writer, 3)
 
@@ -51,7 +52,10 @@ while settings.episodes > episode:
     reward_arr = []
     epsilon_arr = []
 
-    while not terminal:
+    # To avoid never-ending experiments with the agent running in circles
+    step_limit = 300
+
+    while not terminal and step < step_limit: 
         step += 1
         # Get the Q-values of the current state
         q_values = env.q_values()
