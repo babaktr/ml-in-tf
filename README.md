@@ -44,6 +44,9 @@ It is currently under construction, but if you have any feedback, suggestions or
 
 
 ## Reinforcement Learning
+<p align="center">
+  <img src="images/main/rf.png", width="30%"/>
+</p>
 
 ### Implemented Examples
 * [Q-Gridworld](/experiments/q-gridworld) (See also: [NN-Gridworld](/experiments/nn-gridworld), [RNN-Gridworld](/experiments/rnn-gridworld))
