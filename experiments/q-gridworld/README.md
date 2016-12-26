@@ -9,5 +9,5 @@ Q(s,a) <- Q(s'a) + η(r + ɣmax(Q(s',a') - Q(s,a))
 
 ## Plot
 <p align="center">
-  <img src="../../images/plots/q-gridworld-plot.png", width="70%" height="70%"/>
+  <img src="../../images/plots/q-gridworld-plot.png", width="70%"/>
 </p>

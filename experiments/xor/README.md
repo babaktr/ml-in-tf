@@ -1,7 +1,7 @@
 # XOR Experiment
 
 <p align="center">
-  <img src="../../images/networks/xor-network.png", width="50%" height="50%"/>
+  <img src="../../images/networks/xor-network.png", width="50%"/>
 </p>
 
 This experiment implements a small Neural Network (or a Multilayer Perceptron) with two hidden layers that solves the [XOR](https://en.wikipedia.org/wiki/Exclusive_or) problem [<a name="myfootnote1">1</a>].
@@ -9,12 +9,12 @@ This experiment implements a small Neural Network (or a Multilayer Perceptron) w
 
 ## Graph
 <p align="center">
-  <img src="../../images/graphs/xor-graph.png", width="50%" height="50%"/>
+  <img src="../../images/graphs/xor-graph.png", width="50%"/>
 </p>
 
 ## Plot
 <p align="center">
-  <img src="../../images/plots/xor-plot.png", width="70%" height="70%"/>
+  <img src="../../images/plots/xor-plot.png", width="70%"/>
 </p>
 Example graph showing the error over batches/epochs with <b style='color:orange'>one hidden node</b>, <b style='color:LightSeaGreen'>two hidden nodes</b> and <b style='color:purple'>three hidden nodes</b>.
 

@@ -4,6 +4,6 @@ In comparison to the previous [Q-Gridworld](../q-gridworld) experiment, this exp
 
 ## Graph
 <p align="center">
-  <img src="../../images/graphs/nn-graph.png", width="50%" height="50%"/>
+  <img src="../../images/graphs/nn-graph.png", width="50%"/>
 </p>
 

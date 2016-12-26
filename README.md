@@ -6,7 +6,7 @@ It is currently under construction, but if you have any feedback or comments, I'
 
 ## Neural Networks
 <p align="center">
-  <img src="images/main/nn.png", width="25%" height="25%"/>
+  <img src="images/main/nn.png", width="25%"/>
 </p>
 
 ### Good Reads
@@ -20,7 +20,7 @@ It is currently under construction, but if you have any feedback or comments, I'
 
 ## Convolutional Neural Networks
 <p align="center">
-  <img src="images/main/conv.png", width="35%" height="35%"/>
+  <img src="images/main/conv.png", width="35%"/>
 </p>
 
 ### Good Reads
@@ -31,7 +31,7 @@ It is currently under construction, but if you have any feedback or comments, I'
 
 ## Recurrent Neural Networks
 <p align="center">
-  <img src="images/main/rnn.png", width="35%" height="35%"/>
+  <img src="images/main/rnn.png", width="37%"/>
 </p>
 
 ### Good reads
