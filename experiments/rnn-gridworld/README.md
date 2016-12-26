@@ -1,6 +1,8 @@
 # RNN-Gridworld Experiment
 
-
+<p align="center">
+  <img src="../../images/graphs/rnn-graph.png", width="50%"/>
+</p>
 
 
 ## Network 
@@ -18,7 +20,6 @@ action_size = 4 (up, down, left, right)
 
 [C] - Customizable
 
-## Graph
-<p align="center">
-  <img src="../../images/graphs/rnn-graph.png", width="50%"/>
-</p>
+## Performance
+
+
