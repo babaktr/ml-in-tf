@@ -1,8 +1,8 @@
 # Machine Learning in TensorFlow
 
-The purpose of this repo is to offer anyone who wants to get started with using [TensorFlow](https://www.tensorflow.org) a number of examples to get a kickstart with. They aren't necessarily optimized on solving the problem, since that isn't the purpose, but rather serve as a starting ground to play around with for your own experiments and optimizations!
+The purpose of this repo is to offer anyone who wants to get started with using [TensorFlow](https://www.tensorflow.org) a number of examples to get a kickstart with. They aren't necessarily optimized on solving the problem, since that isn't the purpose, but rather serve as a solid starting ground to play around with for your own experiments and optimizations!
 
-It is currently under construction, but if you have any feedback or comments, I'd gladly hear them!
+It is currently under construction, but if you have any feedback, suggestions or comments - I'd gladly hear it!
 
 ## Neural Networks
 <p align="center">
