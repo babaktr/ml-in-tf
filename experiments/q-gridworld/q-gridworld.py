@@ -1,5 +1,5 @@
 import sys
-sys.path.append('../..')
+sys.path.append('..')
 sys.path.append('../games')
 
 import numpy as np
@@ -18,13 +18,18 @@ flags.DEFINE_float('final_epsilon', 0.1, 'Final epsilon value that epsilon will 
 
 # Training settings
 flags.DEFINE_float('learning_rate', 0.5, 'Learning rate of the optimizer.')
+flags.DEFINE_integer('train_step_limit', 300, 'Limits the number of steps in training to avoid badly performing agents running forever.')
 
 # General settings
 flags.DEFINE_integer('field_size', 4, 'Determines width and height of the Gridworld field.')
-flags.DEFINE_float('test_epsilon', 0.1, 'Epsilon to use on test run.')
 flags.DEFINE_integer('status_update', 10, 'How often to print an status update.')
-flags.DEFINE_boolean('run_test', True, 'If the final model should be tested')
 flags.DEFINE_integer('random_seed', 123, 'Number of minibatches to run the training on.')
+
+# Testing settings
+flags.DEFINE_boolean('run_test', True, 'If the final model should be tested')
+flags.DEFINE_integer('test_runs', 100, 'Number of times to run the test.')
+flags.DEFINE_float('test_epsilon', 0.1, 'Epsilon to use on test run.')
+flags.DEFINE_integer('test_step_limit', 1000, 'Limits the number of steps in test to avoid badly performing agents running forever.')
 
 settings = flags.FLAGS                                      
 
@@ -32,7 +37,7 @@ env = GridWorld(settings.field_size, settings.random_seed)
 sess = tf.InteractiveSession()
 np.random.seed(settings.random_seed)
 
-summary_dir = '../../logs/q-gridworld-fieldsize{}-episodes{}-lr{}/'.format(settings.field_size,
+summary_dir = '../logs/q-gridworld-fieldsize{}-episodes{}-lr{}/'.format(settings.field_size,
     settings.episodes, settings.learning_rate)
 summary_writer = tf.summary.FileWriter(summary_dir, sess.graph)
 stats = Stats(sess, summary_writer, 3)
@@ -52,10 +57,7 @@ while settings.episodes > episode:
     reward_arr = []
     epsilon_arr = []
 
-    # To avoid never-ending experiments with the agent running in circles
-    step_limit = 300
-
-    while not terminal and step < step_limit: 
+    while not terminal and step < settings.train_step_limit: 
         step += 1
         # Get the Q-values of the current state
         q_values = env.q_values()
@@ -118,8 +120,7 @@ if settings.run_test:
     print ' --- TESTING MODEL ---'
     steps = []
     rewards = []
-
-    for n in range(100):
+    for n in range(settings.test_runs):
         env.reset()        
         terminal = False
         step = 0
@@ -127,7 +128,7 @@ if settings.run_test:
         reward_arr = []
         epsilon_arr = []
 
-        while not terminal:
+        while not terminal and step < settings.test_step_limit:
             step += 1
             
             q_values = env.q_values()
@@ -143,9 +144,11 @@ if settings.run_test:
             reward_arr.append(reward)
             q_max_arr.append(q_max)
             
+            if step == settings.test_step_limit:
+                print 'REACHED MAX STEPS'
+        
         print 'Run: {}, Steps: {}, Total Reward: {}, Avg Q-max: {}'.format(n, 
-            step, format(np.sum(reward_arr), '.1f'), format(np.average(q_max_arr), '.2f'))
-
+        step, format(np.sum(reward_arr), '.1f'), format(np.average(q_max_arr), '.2f'))
         steps.append(step)
         rewards.append(np.average(reward_arr))
 
@@ -154,3 +157,4 @@ if settings.run_test:
     print 'Avg steps: {}, Avg reward: {}'.format(np.average(steps), np.average(rewards))
     print 'Max steps: {}, Max rewards: {}'.format(np.max(steps), np.max(rewards))
     print 'Min steps: {}, Min rewards: {}'.format(np.min(steps), np.min(rewards))
+    print ' '
