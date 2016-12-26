@@ -16,6 +16,7 @@ It is currently under construction, but if you have any feedback or comments, I'
 ### Implemented Examples
 * [XOR](/experiments/xor)
 * [MNIST](/experiments/mnist)
+* [NN-Gridworld](/experiments/nn-gridworld)
 
 ## Convolutional Neural Networks
 <p align="center">
@@ -37,10 +38,10 @@ It is currently under construction, but if you have any feedback or comments, I'
 * [The Unreasonable Effectiveness on Recurrent Neural Networks](http://karpathy.github.io/2015/05/21/rnn-effectiveness/)
 * [Understanding LSTM Networks](http://colah.github.io/posts/2015-08-Understanding-LSTMs/)
 
-
 ### Implemented Examples
+* [RNN-Gridworld](/experiments/rnn-gridworld)
 
-## Reinforcement Learning (with Neural Networks)
+## Reinforcement Learning
 
 ### Good reads
 * [Deep Reinforcement Learning: Pong from pixels](http://karpathy.github.io/2016/05/31/rl/)
@@ -49,5 +50,4 @@ It is currently under construction, but if you have any feedback or comments, I'
 * [Asynchronous Deep Reinforcement Learning from pixels](https://dbobrenko.github.io/2016/11/03/async-deeprl.html)
 
 ### Implemented Examples
-* [Q-Gridworld](/experiments/q-gridworld)
-* [NN-Gridworld](/experiments/nn-gridworld)
+* [Q-Gridworld](/experiments/q-gridworld) (See also: [NN-Gridworld](/experiments/nn-gridworld), [RNN-Gridworld](/experiments/rnn-gridworld))
