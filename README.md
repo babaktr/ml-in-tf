@@ -28,6 +28,7 @@ It is currently under construction, but if you have any feedback, suggestions or
 
 ### Good Reads
 * [Convolutional Neural Networks (part of CS231 at Stanford)](http://cs231n.github.io/convolutional-networks/)
+* [How do Convolutional Neural Networks work?](http://brohrer.github.io/how_convolutional_neural_networks_work.html)
 
 
 ## Recurrent Neural Networks
@@ -41,7 +42,6 @@ It is currently under construction, but if you have any feedback, suggestions or
 ### Good reads
 * [The Unreasonable Effectiveness on Recurrent Neural Networks](http://karpathy.github.io/2015/05/21/rnn-effectiveness/)
 * [Understanding LSTM Networks](http://colah.github.io/posts/2015-08-Understanding-LSTMs/)
-
 
 ## Reinforcement Learning
 <p align="center">
