@@ -22,7 +22,7 @@ Given the variables ```input_size``` and ```action_size```, the network structur
 <center>
 
 | Input          | Hidden L1| Hidden L2  | Output          |
-|----------------|----------|------------|-----------------|
+|:--------------:|:--------:|:----------:|:---------------:|
 |```input_size```| 80 [c]   | 80 [c]     |```action_size```|
 
 </center>
@@ -32,18 +32,16 @@ Given the variables ```input_size``` and ```action_size```, the network structur
 ## Performance
 
 <p align="center">
-  <img src="../../images/plots/nn-gridworld-plot.png", width="70%"/>
+  <img src="../../images/plots/nn-gridworld-plot1.png", width="70%"/>
+  <img src="../../images/plots/nn-gridworld-plot2.png", width="70%"/>
 </p>
 
 The plots above show the agents training progress running with all parameters set to their default values.
-As you can see in the plot, it took the agent around 300 episodes before it started learning, and around 500 and beyond really got the gist of it. The result of running 100 test runs with the fully trained agent can be seen in the table below.
 
-<center>
+As you can see in the plot, something happend to the performance of the agent just after 600 episodes. From that point and beyond, it really got the gist of it and performed really well thereafter. The result of running 100 test runs with the fully trained agent can be seen in the table below.
 
 |            | Average  |Max  | Min |
-|------------|----------|-----|-----|
-| **Steps**  | 3.26	    | 12  | 1   |
-| **Rewards**| 0.42     | 1   | 0.08|
+|:-----------|:--------:|:---:|:---:|
+| **Steps**  | 2.66	    | 9   | 1   |
+| **Rewards**| 0.48     | 1   | 0.1 |
 
-
-</center>
