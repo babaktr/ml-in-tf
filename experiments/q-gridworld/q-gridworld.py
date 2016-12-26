@@ -1,5 +1,5 @@
 import sys
-sys.path.append('..')
+sys.path.append('../..')
 sys.path.append('../games')
 
 import numpy as np
@@ -37,7 +37,7 @@ env = GridWorld(settings.field_size, settings.random_seed)
 sess = tf.InteractiveSession()
 np.random.seed(settings.random_seed)
 
-summary_dir = '../logs/q-gridworld-fieldsize{}-episodes{}-lr{}/'.format(settings.field_size,
+summary_dir = '../../logs/q-gridworld-fieldsize{}-episodes{}-lr{}/'.format(settings.field_size,
     settings.episodes, settings.learning_rate)
 summary_writer = tf.summary.FileWriter(summary_dir, sess.graph)
 stats = Stats(sess, summary_writer, 3)
