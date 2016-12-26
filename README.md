@@ -20,7 +20,7 @@ It is currently under construction, but if you have any feedback or comments, I'
 
 ## Convolutional Neural Networks
 <p align="center">
-  <img src="images/main/conv.png", width="35%"/>
+  <img src="images/main/conv.png", width="40%"/>
 </p>
 
 ### Good Reads
