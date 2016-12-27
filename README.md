@@ -33,7 +33,7 @@ It is currently under construction, but if you have any feedback, suggestions or
 
 ## Recurrent Neural Networks
 <p align="center">
-  <img src="images/main/rnn.png", width="37%"/>
+  <img src="images/main/rnn.png", width="35%"/>
 </p>
 
 ### Implemented Examples
