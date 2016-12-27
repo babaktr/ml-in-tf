@@ -28,8 +28,37 @@ Given the variables ```input_size``` and ```action_size```, the network structur
 </center>
 [c] - Customizable
 
+## Parameters
+The customizable parameters of this experiment - and their default values - are as follows:
+#### Q Learning settings
+* ```episodes ``` - ```100``` -  Number of minibatches to run the training on. 
+* ```gamma``` -  ```0.99```- Discount (ɣ) to use when Q-value is updated. 
+* ```initial_epsilon``` - ```1.0``` - Initial epsilon value that epsilon will be annealed from. 
+* ```final_epsilon``` - ```0.1``` - Final epsilon value that epsilon will be annealed to. 
 
-## Performance
+#### Network settings
+* ```hidden_l1``` -  ```80``` -  Number of neurons in hidden layer 1.
+* ```hidden_l2``` - ```80``` - Number of neurons in hidden layer 2.
+
+#### Training settings
+* ```learning_rate``` - ```0.001``` - Learning rate of the optimizer.
+* ```optimizer``` -  ```rmsprop``` -  If another optimizer should be used [adam, gradientdescent, rmsprop]. Defaults to gradient descent.
+* ```train_step_limit``` - ```300``` -  Limits the number of steps in training to avoid badly performing agents running forever.
+
+#### General settings
+* ```field_size``` -  ```4``` - Determines width and height of the Gridworld field.
+* ```status_update``` -  ```10``` - How often to print an status update.
+* ```use_gpu``` -  ```False``` - If it should run on GPU rather than CPU.
+* ```random_seed``` - ```123``` -  Number of minibatches to run the training on.
+
+#### Testing settings
+* ```run_test``` - ```True``` - If the final model should be tested.
+* ```test_runs``` - ```100``` - Number of times to run the test.
+* ```test_epsilon``` - ```0.1``` - Epsilon to use on test run.
+* ```test_step_limit``` - ```1000``` -  Limits the number of steps in test to avoid badly performing agents running forever.
+
+
+## Experiment results
 
 <p align="center">
   <img src="../../images/plots/nn-gridworld-plot1.png", width="70%"/>
@@ -44,4 +73,9 @@ As you can see in the plot, something happend to the performance of the agent ju
 |:-----------|:--------:|:---:|:---:|
 | **Steps**  | 2.66	    | 9   | 1   |
 | **Rewards**| 0.48     | 1   | 0.1 |
+
+## Next step
+If you have played around anythin with the ```field_size```, you'll quickly notice that the network runs into trouble as you are approaching 10. This is partly due to the exponentially larger state we send in to the network, but also because a single row of states actually isn't the best possible representation of the game. 
+
+But is there a way where we can keep it like it is and perhaps bypass this issue in larger state spaces? Actually, there [is a way](../rnn-gridworld/) we could try out.
 

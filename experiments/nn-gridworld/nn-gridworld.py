@@ -17,12 +17,12 @@ flags.DEFINE_float('initial_epsilon', 1.0, 'Initial epsilon value that epsilon w
 flags.DEFINE_float('final_epsilon', 0.1, 'Final epsilon value that epsilon will be annealed to.')
 
 # Network settings
-flags.DEFINE_integer('hidden_l1', 80, 'Number of hidden neurons in layer 1.')
-flags.DEFINE_integer('hidden_l2', 80, 'Number of hidden neurons in layer 2.')
+flags.DEFINE_integer('hidden_l1', 80, 'Number of neurons in hidden layer 1.')
+flags.DEFINE_integer('hidden_l2', 80, 'Number of neurons in hidden layer 2.')
 
 # Training settings
 flags.DEFINE_float('learning_rate', 0.001, 'Learning rate of the optimizer.')
-flags.DEFINE_string('optimizer', 'rmsprop', 'If another optimizer should be used [adam, rmsprop]. Defaults to gradient descent')
+flags.DEFINE_string('optimizer', 'rmsprop', 'If another optimizer should be used [adam, gradientdescent, rmsprop]. Defaults to gradient descent.')
 flags.DEFINE_integer('train_step_limit', 300, 'Limits the number of steps in training to avoid badly performing agents running forever.')
 
 # General Settings
@@ -32,7 +32,7 @@ flags.DEFINE_boolean('use_gpu', False, 'If it should run on GPU rather than CPU.
 flags.DEFINE_integer('random_seed', 123, 'Sets the random seed.')
 
 # Testing settings
-flags.DEFINE_boolean('run_test', True, 'If the final model should be tested')
+flags.DEFINE_boolean('run_test', True, 'If the final model should be tested.')
 flags.DEFINE_integer('test_runs', 100, 'Number of times to run the test.')
 flags.DEFINE_float('test_epsilon', 0.1, 'Epsilon to use on test run.')
 flags.DEFINE_integer('test_step_limit', 1000, 'Limits the number of steps in test to avoid badly performing agents running forever.')

@@ -30,8 +30,31 @@ There are two different terminal states available.
 * Reaching the goal.
 * Reaching the pit.
 
+## Parameters
+The customizable parameters of this experiment - and their default values - are as follows:
+#### Q Learning settings
+* ```episodes ``` - ```100``` -  Number of minibatches to run the training on. 
+* ```gamma``` -  ```0.99```- Discount (ɣ) to use when Q-value is updated. 
+* ```initial_epsilon``` - ```1.0``` - Initial epsilon value that epsilon will be annealed from. 
+* ```final_epsilon``` - ```0.1``` - Final epsilon value that epsilon will be annealed to. 
 
-## Performance
+#### Training settings
+* ```learning_rate``` - ```0.5``` - Learning rate of the optimizer.
+* ```train_step_limit``` - ```300``` -  Limits the number of steps in training to avoid badly performing agents running forever.
+
+#### General settings
+* ```field_size``` -  ```4``` - Determines width and height of the Gridworld field.
+* ```status_update``` -  ```10``` - How often to print an status update.
+* ```random_seed``` - ```123``` -  Number of minibatches to run the training on.
+
+#### Testing settings
+* ```run_test``` - ```True``` - If the final model should be tested.
+* ```test_runs``` - ```100``` - Number of times to run the test.
+* ```test_epsilon``` - ```0.1``` - Epsilon to use on test run.
+* ```test_step_limit``` - ```1000``` -  Limits the number of steps in test to avoid badly performing agents running forever.
+
+
+## Experiment results
 <p align="center">
   <img src="../../images/plots/q-gridworld-plot.png", width="70%"/>
 </p>

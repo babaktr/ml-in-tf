@@ -26,7 +26,7 @@ flags.DEFINE_integer('status_update', 10, 'How often to print an status update.'
 flags.DEFINE_integer('random_seed', 123, 'Number of minibatches to run the training on.')
 
 # Testing settings
-flags.DEFINE_boolean('run_test', True, 'If the final model should be tested')
+flags.DEFINE_boolean('run_test', True, 'If the final model should be tested.')
 flags.DEFINE_integer('test_runs', 100, 'Number of times to run the test.')
 flags.DEFINE_float('test_epsilon', 0.1, 'Epsilon to use on test run.')
 flags.DEFINE_integer('test_step_limit', 1000, 'Limits the number of steps in test to avoid badly performing agents running forever.')
