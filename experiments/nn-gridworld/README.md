@@ -3,7 +3,7 @@
   <img src="../../images/graphs/nn-graph.png", width="50%"/>
 </p>
 
-In comparison to the [Q-Gridworld](../q-gridworld) experiment, we're now going train an agent to play [Gridworld](../games/gridworld.py) by utilizing a Neural Network instead of storing all Q-values in a table. By sending the state of the game as an input, the network will be trained to estimate the Q-values of that state.
+In comparison to the [Q-Gridworld](../q-gridworld) experiment, we're now going train an agent to play [Gridworld](../games/gridworld.py) by utilizing a **Neural Network** (NN) instead of storing all Q-values in a table. By sending the state of the game as an input, the network will be trained to estimate the Q-values of that state.
 
 The state of the game is defined as three zero-filled matricies of the field (```3 x [field_size, field_size]```) where the coordinate of the actor, pit and the goal is marked by setting that element of the matrix to 1.
 

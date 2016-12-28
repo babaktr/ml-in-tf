@@ -51,9 +51,9 @@ else:
 input_size = 3 * settings.field_size * settings.field_size
 
 with tf.device(device):
-    # Input
+    # Input with shape [?, input_size]
     x = tf.placeholder(tf.float32, shape=[None, input_size], name='x-input')
-    # Output
+    # Desired output with shape [?, 4]
     y_ = tf.placeholder(tf.float32, shape=[None, 4], name='desired-output')
 
     # Hidden layer 1 weights and bias

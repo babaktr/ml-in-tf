@@ -30,16 +30,16 @@ print('Starting session with: Minibatches: {} -- Learning Rate: {} -- Optimizer:
 
 sess = tf.InteractiveSession()
 
-# Input of two values
+# Input with shape [?, 784]
 x = tf.placeholder(tf.float32, shape=[None, 784], name='x-input')
-# Desired output of one value
+# Desired output with shape [?, 10]
 y_ = tf.placeholder(tf.float32, shape=[None, 10], name='desired-output')
 
 # Hidden layer 1 weights and bias
 W = tf.Variable(tf.truncated_normal([784, 10]), name='weights-1')
 b = tf.Variable(tf.zeros([10]), name='bias-1')
 
-# Output
+# Output with shape [?, 10]
 with tf.name_scope('output') as scope:
     y = tf.nn.softmax(tf.matmul(x, W) + b)
 

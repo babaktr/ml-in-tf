@@ -51,47 +51,48 @@ else:
 
 input_size = 3 * settings.field_size * settings.field_size
 
-# Input
-x = tf.placeholder(tf.float32, shape=[settings.sequence_length, None, input_size], name='x-input')
-# Output
-y_ = tf.placeholder(tf.float32, shape=[None, 4], name='desired-output')
+with tf.device(device):
+    # Input with shape 
+    x = tf.placeholder(tf.float32, shape=[settings.sequence_length, None, input_size], name='x-input')
+    # Desired output
+    y_ = tf.placeholder(tf.float32, shape=[None, 4], name='desired-output')
 
-W = tf.Variable(tf.random_uniform([settings.hidden, 4]), name='weights')
-b = tf.Variable(tf.random_uniform([4]), name='bias')
+    # Weights and bias
+    W = tf.Variable(tf.random_uniform([settings.hidden, 4]), name='weights')
+    b = tf.Variable(tf.random_uniform([4]), name='bias')
 
-def setup_rnn(x, weights, biases):
-    with tf.device(device):
-        x_1 = tf.reshape(x, [-1, input_size])
-        x_2 = tf.split(0, settings.sequence_length, x_1)
+    # Reshape input from [3, ?, input_size]
+    x_1 = tf.reshape(x, [-1, input_size])
+    # Split input to shape [3, [?, input_size]]
+    x_2 = tf.split(0, settings.sequence_length, x_1)
 
-        lstm_cell = tf.nn.rnn_cell.BasicLSTMCell(settings.hidden, forget_bias=1.0, state_is_tuple=True)
-        lstm_cell = tf.nn.rnn_cell.MultiRNNCell([lstm_cell] * settings.rnn_layers, state_is_tuple=True)
+    # Set up basic LSTM cell with forget_bias = 1
+    lstm_cell = tf.nn.rnn_cell.BasicLSTMCell(settings.hidden, forget_bias=1.0, state_is_tuple=True)
+    lstm_cell = tf.nn.rnn_cell.MultiRNNCell([lstm_cell] * settings.rnn_layers, state_is_tuple=True)
 
-        outputs, state = tf.nn.rnn(lstm_cell, x_2, dtype=tf.float32)
+    # Get outputs of RNN layer
+    outputs, state = tf.nn.rnn(lstm_cell, x_2, dtype=tf.float32)
 
-        with tf.name_scope('output') as scope:
-            y = tf.matmul(outputs[-1], W) + b
-        return y
+    with tf.name_scope('output') as scope:
+        y = tf.matmul(outputs[-1], W) + b
 
-y = setup_rnn(x, W, b)
+    # Objective function 
+    with tf.name_scope('loss') as scope:
+        obj_function = tf.sqrt(tf.reduce_mean(tf.square(tf.sub(y_, y))))
 
-# Objective function 
-with tf.name_scope('loss') as scope:
-    obj_function = tf.sqrt(tf.reduce_mean(tf.square(tf.sub(y_, y))))
+    with tf.name_scope('train') as scope:
+        if settings.optimizer.lower() == 'adam':
+            # Adam Optimizer
+            train_step = tf.train.AdamOptimizer(settings.learning_rate).minimize(obj_function)
+        elif settings.optimizer.lower() == 'rmsprop':
+            # RMSProp
+            train_step = tf.train.RMSPropOptimizer(settings.learning_rate).minimize(obj_function)
+        else: 
+            # Gradient Descent
+            train_step = tf.train.GradientDescentOptimizer(settings.learning_rate).minimize(obj_function)
 
-with tf.name_scope('train') as scope:
-    if settings.optimizer.lower() == 'adam':
-        # Adam Optimizer
-        train_step = tf.train.AdamOptimizer(settings.learning_rate).minimize(obj_function)
-    elif settings.optimizer.lower() == 'rmsprop':
-        # RMSProp
-        train_step = tf.train.RMSPropOptimizer(settings.learning_rate).minimize(obj_function)
-    else: 
-        # Gradient Descent
-        train_step = tf.train.GradientDescentOptimizer(settings.learning_rate).minimize(obj_function)
-
-init = tf.global_variables_initializer()
-sess.run(init)
+    init = tf.global_variables_initializer()
+    sess.run(init)
 
 # Specify how accuracy is measured
 correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(y_,1))
@@ -109,6 +110,7 @@ epsilon = settings.initial_epsilon
 while settings.episodes > episode:
 	# Prepare environment for playing
     state = env.reset()
+    # Stack states in shape [3, 1, input_size]
     states = np.full((settings.sequence_length, 1, input_size), state.reshape(1, input_size))
 
     # Reset or increment values
@@ -146,12 +148,16 @@ while settings.episodes > episode:
 
         # Take action and observe new state and reward, check if state is terminal
         new_state, reward, terminal = env.perform_action(action)
+
+        # Pop the oldest state
         new_states = np.delete(states, 0, 0)
         
+        # Separate the other states into a tuple
         new_states_tuple = ()
         for i in range(len(new_states)):
             new_states_tuple += (new_states[i],)
         
+        # Add new state to tuple and stack the new states
         new_states_tuple += (new_state.reshape(1, input_size),)
         new_states = np.stack(new_states_tuple)
 

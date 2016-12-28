@@ -4,6 +4,9 @@
   <img src="../../images/graphs/rnn-graph.png", width="50%"/>
 </p>
 
+We managed to improve the performance of [Q-Gridworld](../q-gridworld) by extending it using a [Neural Network](../nn-gridworld) to estimate the Q-values instead of storing them in a table. What is the step if we want to further improve its performance?
+
+We're going to have a look how we can solve it by using **Recurrent Neural Network** (RNN), which is similar to a regular Neural Netowrk in many ways, but has the ability to learn sequences rather than a single rows of input vectors, extending its observations in _time_.
 
 ## Parameters
 The customizable parameters of this experiment - and their default values - are as follows:
@@ -66,7 +69,7 @@ As you can see in the plot, something happend to the performance of the agent ju
 
 So how does [NN-Gridworld](../nn-gridworld) and RNN-Gridworld stand against each other?
 To test this, I had both networks run on a 10x10 grid (```field_size = 10```), meaning that the input vector to the network now was ```3 * 10 * 10 ⟶ [1, 300]```, which is really large. However, the RNN still managed to learn how to play, and fairly quickly so!
-You can compare them in the plow below, where the training progress of the **<span style="color:#FD704B">RNN</span>** and **<span style="color:#1BACC0">NN</span>** network (with default parameters except ```field_size```) are plotted together.
+You can compare them in the plow below, where the training progress of the **RNN** (orange) and **NN** (turquoise) network (with default parameters except ```field_size```) are plotted together.
 
 
 <p align="center">
@@ -84,7 +87,7 @@ The test performance of the RNN then shows the following results, which is still
 
 Let's go even further! This time, we're comparing the performance between the RNN-Gridworld to  [Q-Gridworld](../q-gridworld). They both ran on a 15x15 grid (```field_size = 15```), where the RNN operated with an input vector of size ```3 * 15 * 15 ⟶ [1, 135]```. All parameters were set to default values except ```field_size``` of them both and ```episodes```of the Q-Gridworld, which was set to ```1000```.
 
-As you can see in the plot, showing the training progress of the **<span style="color:#FD704B">RNN</span>** and **<span style="color:#1BACC0">Q</span>**, they both still manage to learn how to play. Actually, looking the test results scores (**Avg. steps** and **Avg. rewards**), it appears that the RNN-Gridworld marginally beats the Q-Gridworld.
+As you can see in the plot, showing the training progress of the **RNN** (orange) and **Q** (turquoise), they both still manage to learn how to play. Actually, looking the test results scores (**Avg. steps** and **Avg. rewards**), it appears that the RNN-Gridworld marginally beats the Q-Gridworld.
 <p align="center">
   <img src="../../images/plots/rnn-q-15-plot.png", width="70%"/>
 </p>
