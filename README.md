@@ -1,6 +1,6 @@
 # Machine Learning in TensorFlow
 
-The purpose of this repository is to offer anyone who wants to get started with using [TensorFlow](https://www.tensorflow.org)a number of experiments, where the same problem is solved through different techniques, showcasing different methods of approaching the same problem. 
+The purpose of this repository is to offer anyone who wants to get started with using [TensorFlow](https://www.tensorflow.org) a number of experiments, where the same problem is solved through different techniques, showcasing different methods of approaching the same problem. 
 
 I believe that the best way of doing this is to have some consistensy in how the code is written, so that the curious reader can focus on how the techniques differ rather than comparing the code standard of two different programmers.
 
