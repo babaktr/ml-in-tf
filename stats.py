@@ -21,7 +21,7 @@ class Stats(object):
         self.summary_ops = {}
 
     for tag in scalar_summary_tags:
-        self.summary_placeholders[tag] = tf.placeholder('float32', None, name=tag.replace(' ', '_'))
+        self.summary_placeholders[tag] = tf.placeholder('float32', None, name=tag)
         self.summary_ops[tag]  = tf.summary.scalar(tag, self.summary_placeholders[tag])
 
   def update(self, dictionary):

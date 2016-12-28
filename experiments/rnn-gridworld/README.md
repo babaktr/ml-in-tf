@@ -14,7 +14,7 @@ The customizable parameters of this experiment - and their default values - are 
 * ```final_epsilon``` - ```0.1``` - Final epsilon value that epsilon will be annealed to. 
 
 #### Network settings
-* ```hidden``` -  ```80``` -  Number of hidden neurons in each RNN layer..
+* ```hidden``` -  ```80``` -  Number of hidden neurons in each RNN layer.s
 * ```rnn_layers``` - ```2``` - Number of RNN layers.
 * ```sequence_length``` - ```3``` - Unfolded RNN sequence length.
 
