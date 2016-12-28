@@ -19,7 +19,7 @@ flags.DEFINE_float('final_epsilon', 0.1, 'Final epsilon value that epsilon will 
 # Network settings
 flags.DEFINE_integer('hidden', 80, 'Number of hidden neurons in each RNN layer.')
 flags.DEFINE_integer('rnn_layers', 2, 'Number of RNN layers.')
-flags.DEFINE_integer('timesteps', 3, 'Unfolded RNN sequence length.')
+flags.DEFINE_integer('sequence_length', 3, 'Unfolded RNN sequence length.')
 
 # Training settings
 flags.DEFINE_float('learning_rate', 0.001, 'Learning rate of the optimizer.')
@@ -33,7 +33,7 @@ flags.DEFINE_boolean('use_gpu', False, 'If it should run on GPU rather than CPU.
 flags.DEFINE_integer('random_seed', 123, 'Sets the random seed.')
 
 # Testing settings
-flags.DEFINE_boolean('run_test', True, 'If the final model should be tested')
+flags.DEFINE_boolean('run_test', True, 'If the final model should be tested.')
 flags.DEFINE_integer('test_runs', 100, 'Number of times to run the test.')
 flags.DEFINE_float('test_epsilon', 0.1, 'Epsilon to use on test run.')
 flags.DEFINE_integer('test_step_limit', 1000, 'Limits the number of steps in test to avoid badly performing agents running forever.')
@@ -52,23 +52,22 @@ else:
 input_size = 3 * settings.field_size * settings.field_size
 
 # Input
-x = tf.placeholder(tf.float32, shape=[None, settings.timesteps, input_size], name='x-input')
+x = tf.placeholder(tf.float32, shape=[settings.sequence_length, None, input_size], name='x-input')
 # Output
 y_ = tf.placeholder(tf.float32, shape=[None, 4], name='desired-output')
 
-W = tf.Variable(tf.random_uniform([settings.hidden, 4]))
-b = tf.Variable(tf.random_uniform([4]))
+W = tf.Variable(tf.random_uniform([settings.hidden, 4]), name='weights')
+b = tf.Variable(tf.random_uniform([4]), name='bias')
 
 def setup_rnn(x, weights, biases):
     with tf.device(device):
-        x_1 = tf.transpose(x, [1, 0, 2])
-        x_2 = tf.reshape(x_1, [-1, input_size])
-        x_3 = tf.split(0, settings.timesteps, x_2)
+        x_1 = tf.reshape(x, [-1, input_size])
+        x_2 = tf.split(0, settings.sequence_length, x_1)
 
         lstm_cell = tf.nn.rnn_cell.BasicLSTMCell(settings.hidden, forget_bias=1.0, state_is_tuple=True)
         lstm_cell = tf.nn.rnn_cell.MultiRNNCell([lstm_cell] * settings.rnn_layers, state_is_tuple=True)
 
-        outputs, state = tf.nn.rnn(lstm_cell, x_3, dtype=tf.float32)
+        outputs, state = tf.nn.rnn(lstm_cell, x_2, dtype=tf.float32)
 
         with tf.name_scope('output') as scope:
             y = tf.matmul(outputs[-1], W) + b
@@ -99,8 +98,8 @@ correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(y_,1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 # Statistics summary writer
-summary_dir = '../../logs/gridworld-rnn-fieldsize{}-episodes{}-timesteps{}-rnnlayers{}-hidden{}-lr{}-{}/'.format(settings.field_size,
-    settings.episodes, settings.timesteps, settings.rnn_layers, settings.hidden, settings.learning_rate, settings.optimizer)
+summary_dir = '../../logs/rnn-gridworld-fieldsize{}-episodes{}-sequence{}-rnnlayers{}-hidden{}-lr{}-{}/'.format(settings.field_size,
+    settings.episodes, settings.sequence_length, settings.rnn_layers, settings.hidden, settings.learning_rate, settings.optimizer)
 summary_writer = tf.summary.FileWriter(summary_dir, sess.graph)
 stats = Stats(sess, summary_writer, 4)
 
@@ -110,7 +109,7 @@ epsilon = settings.initial_epsilon
 while settings.episodes > episode:
 	# Prepare environment for playing
     state = env.reset()
-    states = np.full((settings.timesteps, 1, input_size), state.reshape(1, input_size))
+    states = np.full((settings.sequence_length, 1, input_size), state.reshape(1, input_size))
 
     # Reset or increment values
     terminal = False
@@ -125,7 +124,7 @@ while settings.episodes > episode:
     while not terminal and step < settings.train_step_limit: 
         step += 1
         # Get the Q-values of the current state
-        q_values = sess.run(y, feed_dict={x: states.reshape(1,settings.timesteps, input_size)})
+        q_values = sess.run(y, feed_dict={x: states})
 
         # Save max(Q(s,a)) for stats
         q_max = np.max(q_values)
@@ -157,7 +156,7 @@ while settings.episodes > episode:
         new_states = np.stack(new_states_tuple)
 
        	# Get the new state's Q-values
-        q_values_new = sess.run(y, feed_dict={x: new_states.reshape(1, settings.timesteps, input_size)})
+        q_values_new = sess.run(y, feed_dict={x: new_states})
         # Get max(Q(s',a')) to update Q(s,a)
         q_max_new = np.max(q_values_new)
 
@@ -173,11 +172,11 @@ while settings.episodes > episode:
 
         # Run training
         _, loss = sess.run([train_step, obj_function],
-                    feed_dict={x: states.reshape(1,settings.timesteps, input_size),
+                    feed_dict={x: states,
                             y_: q_values})
 
         # Calculate accuracy
-        acc = sess.run(accuracy, feed_dict={x: states.reshape(1,settings.timesteps, input_size),
+        acc = sess.run(accuracy, feed_dict={x: states,
                                             y_: q_values})
 
         # Set the current state to the new state
@@ -211,7 +210,7 @@ if settings.run_test:
     rewards = []
     for n in range(settings.test_runs):
         state = env.reset()  
-        states = np.full((settings.timesteps, 1, input_size), state.reshape(1, input_size))      
+        states = np.full((settings.sequence_length, 1, input_size), state.reshape(1, input_size))      
         terminal = False
         step = 0
         q_max_arr = []
@@ -221,7 +220,7 @@ if settings.run_test:
         while not terminal and step < settings.test_step_limit: 
             step += 1
             
-            q_values = sess.run(y, feed_dict={x: states.reshape(1, settings.timesteps, input_size)})
+            q_values = sess.run(y, feed_dict={x: states})
             q_max = np.max(q_values)
 
             if (np.random.random() < settings.test_epsilon): 

@@ -104,7 +104,7 @@ correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(y_,1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 # Statistics summary writer
-summary_dir = '../../logs/gridworld-nn-fieldsize{}-episodes{}-hidden1_{}-hidden2_{}-lr{}-{}/'.format(settings.field_size,
+summary_dir = '../../logs/nn-gridworld-fieldsize{}-episodes{}-hidden1_{}-hidden2_{}-lr{}-{}/'.format(settings.field_size,
     settings.episodes, settings.hidden_l1, settings.hidden_l2, settings.learning_rate, settings.optimizer)
 summary_writer = tf.summary.FileWriter(summary_dir, sess.graph)
 stats = Stats(sess, summary_writer, 4)

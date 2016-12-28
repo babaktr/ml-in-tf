@@ -19,13 +19,11 @@ Given the variables ```input_size``` and ```action_size```, the network structur
 * ```input_size = 3 * field_size * field_size```
 * ```action_size = 4 (up, down, left, right)```
 
-<center>
 
 | Input          | Hidden L1| Hidden L2  | Output          |
 |:--------------:|:--------:|:----------:|:---------------:|
 |```input_size```| 80 [c]   | 80 [c]     |```action_size```|
 
-</center>
 [c] - Customizable
 
 ## Parameters
