@@ -34,6 +34,7 @@ It is currently under construction, but if you have any feedback, suggestions or
 * [NN-Gridworld](/experiments/nn-gridworld)
 
 ### Good Reads
+* [Machine Learning Crash Course](https://ml.berkeley.edu/blog/2016/11/06/tutorial-1/) - ([Part 1](https://ml.berkeley.edu/blog/2016/11/06/tutorial-1/), [Part 2](https://ml.berkeley.edu/blog/2016/12/24/tutorial-2/)
 * [Neural Networks (part of CS231 at Stanford)](http://cs231n.github.io/neural-networks-1/) - ([Part 1](http://cs231n.github.io/neural-networks-1/), [Part 2](http://cs231n.github.io/neural-networks-2/), [Part 3](http://cs231n.github.io/neural-networks-3/))
 * [Neural Networks and Deep Learning](http://neuralnetworksanddeeplearning.com/index.html)
 
