@@ -6,6 +6,7 @@ import numpy as np
 import tensorflow as tf
 from stats import Stats
 
+from network import NeuralNetwork
 from gridworld import GridWorld
 
 flags = tf.app.flags
@@ -40,7 +41,6 @@ flags.DEFINE_integer('test_step_limit', 1000, 'Limits the number of steps in tes
 settings = flags.FLAGS
 
 env = GridWorld(settings.field_size, settings.random_seed)
-sess = tf.InteractiveSession()
 np.random.seed(settings.random_seed)
 
 if settings.use_gpu:
@@ -50,64 +50,20 @@ else:
 
 input_size = 3 * settings.field_size * settings.field_size
 
-with tf.device(device):
-    # Input with shape [?, input_size]
-    x = tf.placeholder(tf.float32, shape=[None, input_size], name='x-input')
-    # Desired output with shape [?, 4]
-    y_ = tf.placeholder(tf.float32, shape=[None, 4], name='desired-output')
-
-    # Hidden layer 1 weights and bias
-    W_1 = tf.Variable(tf.random_uniform([input_size, settings.hidden_l1]), name='weights-1')
-    b_1 = tf.Variable(tf.zeros([settings.hidden_l1]), name='bias-1')
-
-    # Hidden layer 1's output
-    with tf.name_scope('hidden-layer-1') as scope:
-        out_1 = tf.nn.relu(tf.matmul(x, W_1) + b_1)
-
-    # Hidden layer 2 weights and bias 
-    W_2 = tf.Variable(tf.random_uniform([settings.hidden_l1, settings.hidden_l2]), name='weights-2')
-    b_2 = tf.Variable(tf.zeros([settings.hidden_l2]), name='bias-2')
-
-    # Hidden layer 2's output 
-    with tf.name_scope('hidden-layer-2') as scope:
-        out_2 = tf.nn.relu(tf.matmul(out_1, W_2) + b_2)
-
-    # Hidden layer 3 weights and bias 
-    W_3 = tf.Variable(tf.random_uniform([settings.hidden_l2, 4]), name='weights-3')
-    b_3 = tf.Variable(tf.zeros([4]), name='bias-3')
-
-    # Hidden layer 3's output 
-    with tf.name_scope('output') as scope:
-        y = tf.matmul(out_2, W_3) + b_3
-
-    # Objective function 
-    with tf.name_scope('loss') as scope:
-        obj_function = tf.sqrt(tf.reduce_mean(tf.square(tf.sub(y_, y))))
-
-    with tf.name_scope('train') as scope:
-        if settings.optimizer.lower() == 'adam':
-            # Adam Optimizer
-            train_step = tf.train.AdamOptimizer(settings.learning_rate).minimize(obj_function)
-        elif settings.optimizer.lower() == 'rmsprop':
-            # RMSProp
-            train_step = tf.train.RMSPropOptimizer(settings.learning_rate).minimize(obj_function)
-        else: 
-            # Gradient Descent
-            train_step = tf.train.GradientDescentOptimizer(settings.learning_rate).minimize(obj_function)
-
-
-    init = tf.global_variables_initializer()
-    sess.run(init)
-
-# Specify how accuracy is measured
-correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(y_,1))
-accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+# Set up Neural Network
+nn_network = NeuralNetwork(device, 
+                                settings.random_seed, 
+                                input_size, 
+                                settings.hidden_l1, 
+                                settings.hidden_l2, 
+                                settings.learning_rate, 
+                                settings.optimizer)
 
 # Statistics summary writer
 summary_dir = '../../logs/nn-gridworld-fieldsize{}-episodes{}-hidden1_{}-hidden2_{}-lr{}-{}/'.format(settings.field_size,
     settings.episodes, settings.hidden_l1, settings.hidden_l2, settings.learning_rate, settings.optimizer)
-summary_writer = tf.summary.FileWriter(summary_dir, sess.graph)
-stats = Stats(sess, summary_writer, 4)
+summary_writer = tf.summary.FileWriter(summary_dir, nn_network.sess.graph)
+stats = Stats(nn_network.sess, summary_writer, 4)
 
 episode = 0
 epsilon = settings.initial_epsilon
@@ -129,7 +85,7 @@ while settings.episodes > episode:
     while not terminal and step < settings.train_step_limit: 
         step += 1
         # Get the Q-values of the current state
-        q_values = sess.run(y, feed_dict={x: state.reshape(1, input_size)})
+        q_values = nn_network.predict(state.reshape(1, input_size))
         # Save max(Q(s,a)) for stats
         q_max = np.max(q_values)
         
@@ -152,7 +108,8 @@ while settings.episodes > episode:
         new_state, reward, terminal = env.perform_action(action)
        
        	# Get the new state's Q-values
-        q_values_new = sess.run(y, feed_dict={x: new_state.reshape(1, input_size)})
+        q_values_new = nn_network.predict(new_state.reshape(1, input_size))
+
         # Get max(Q(s',a')) to update Q(s,a)
         q_max_new = np.max(q_values_new)
 
@@ -166,14 +123,11 @@ while settings.episodes > episode:
         # Updated the desired output for training the network
         q_values[0][action] = update
 
-        # Run training
-        _, loss = sess.run([train_step, obj_function],
-                    feed_dict={x: state.reshape(1, input_size),
-                            y_: q_values})
-
         # Calculate accuracy
-        acc = sess.run(accuracy, feed_dict={x: state.reshape(1, input_size), 
-                                            y_: q_values})
+        acc = nn_network.get_accuracy(state.reshape(1, input_size), q_values) 
+                                           
+        # Run training
+        loss = nn_network.train(state.reshape(1, input_size), q_values)
 
         # Set the current state to the new state
         state = new_state
@@ -215,7 +169,7 @@ if settings.run_test:
         while not terminal and step < settings.test_step_limit: 
             step += 1
 
-            q_values = sess.run(y, feed_dict={x: state.reshape(1, input_size)})
+            q_values = nn_network.predict(state.reshape(1, input_size))
             q_max = np.max(q_values)
 
             if (np.random.random() < settings.test_epsilon): 

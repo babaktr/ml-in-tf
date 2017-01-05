@@ -6,6 +6,7 @@ import numpy as np
 import tensorflow as tf
 from stats import Stats
 
+from network import RecurrentNeuralNetwork
 from gridworld import GridWorld
 
 flags = tf.app.flags
@@ -41,7 +42,6 @@ flags.DEFINE_integer('test_step_limit', 1000, 'Limits the number of steps in tes
 settings = flags.FLAGS
 
 env = GridWorld(settings.field_size, settings.random_seed)
-sess = tf.InteractiveSession()
 np.random.seed(settings.random_seed)
 
 if settings.use_gpu:
@@ -51,58 +51,21 @@ else:
 
 input_size = 3 * settings.field_size * settings.field_size
 
-with tf.device(device):
-    # Input with shape 
-    x = tf.placeholder(tf.float32, shape=[settings.sequence_length, None, input_size], name='x-input')
-    # Desired output
-    y_ = tf.placeholder(tf.float32, shape=[None, 4], name='desired-output')
-
-    # Weights and bias
-    W = tf.Variable(tf.random_uniform([settings.hidden, 4]), name='weights')
-    b = tf.Variable(tf.random_uniform([4]), name='bias')
-
-    # Reshape input from [3, ?, input_size]
-    x_1 = tf.reshape(x, [-1, input_size])
-    # Split input to shape [3, [?, input_size]]
-    x_2 = tf.split(0, settings.sequence_length, x_1)
-
-    # Set up basic LSTM cell with forget_bias = 1
-    lstm_cell = tf.nn.rnn_cell.BasicLSTMCell(settings.hidden, forget_bias=1.0, state_is_tuple=True)
-    lstm_cell = tf.nn.rnn_cell.MultiRNNCell([lstm_cell] * settings.rnn_layers, state_is_tuple=True)
-
-    # Get outputs of RNN layer
-    outputs, state = tf.nn.rnn(lstm_cell, x_2, dtype=tf.float32)
-
-    with tf.name_scope('output') as scope:
-        y = tf.matmul(outputs[-1], W) + b
-
-    # Objective function 
-    with tf.name_scope('loss') as scope:
-        obj_function = tf.sqrt(tf.reduce_mean(tf.square(tf.sub(y_, y))))
-
-    with tf.name_scope('train') as scope:
-        if settings.optimizer.lower() == 'adam':
-            # Adam Optimizer
-            train_step = tf.train.AdamOptimizer(settings.learning_rate).minimize(obj_function)
-        elif settings.optimizer.lower() == 'rmsprop':
-            # RMSProp
-            train_step = tf.train.RMSPropOptimizer(settings.learning_rate).minimize(obj_function)
-        else: 
-            # Gradient Descent
-            train_step = tf.train.GradientDescentOptimizer(settings.learning_rate).minimize(obj_function)
-
-    init = tf.global_variables_initializer()
-    sess.run(init)
-
-# Specify how accuracy is measured
-correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(y_,1))
-accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+# Set up Recurrent Neural Network
+rnn_network = RecurrentNeuralNetwork(device, 
+                                    settings.random_seed, 
+                                    input_size, 
+                                    settings.hidden, 
+                                    settings.sequence_length, 
+                                    settings.rnn_layers, 
+                                    settings.learning_rate, 
+                                    settings.optimizer)
 
 # Statistics summary writer
 summary_dir = '../../logs/rnn-gridworld-fieldsize{}-episodes{}-sequence{}-rnnlayers{}-hidden{}-lr{}-{}/'.format(settings.field_size,
     settings.episodes, settings.sequence_length, settings.rnn_layers, settings.hidden, settings.learning_rate, settings.optimizer)
-summary_writer = tf.summary.FileWriter(summary_dir, sess.graph)
-stats = Stats(sess, summary_writer, 4)
+summary_writer = tf.summary.FileWriter(summary_dir, rnn_network.sess.graph)
+stats = Stats(rnn_network.sess, summary_writer, 4)
 
 episode = 0
 epsilon = settings.initial_epsilon
@@ -126,7 +89,7 @@ while settings.episodes > episode:
     while not terminal and step < settings.train_step_limit: 
         step += 1
         # Get the Q-values of the current state
-        q_values = sess.run(y, feed_dict={x: states})
+        q_values = rnn_network.predict(states)
 
         # Save max(Q(s,a)) for stats
         q_max = np.max(q_values)
@@ -162,7 +125,7 @@ while settings.episodes > episode:
         new_states = np.stack(new_states_tuple)
 
        	# Get the new state's Q-values
-        q_values_new = sess.run(y, feed_dict={x: new_states})
+        q_values_new = rnn_network.predict(new_states)
         # Get max(Q(s',a')) to update Q(s,a)
         q_max_new = np.max(q_values_new)
 
@@ -176,14 +139,11 @@ while settings.episodes > episode:
         # Updated the desired output for training the network
         q_values[0][action] = update
 
-        # Run training
-        _, loss = sess.run([train_step, obj_function],
-                    feed_dict={x: states,
-                            y_: q_values})
-
         # Calculate accuracy
-        acc = sess.run(accuracy, feed_dict={x: states,
-                                            y_: q_values})
+        acc = rnn_network.get_accuracy(states, q_values)
+
+        # Run training
+        loss = rnn_network.train(states, q_values)
 
         # Set the current state to the new state
         states = new_states
@@ -226,7 +186,7 @@ if settings.run_test:
         while not terminal and step < settings.test_step_limit: 
             step += 1
             
-            q_values = sess.run(y, feed_dict={x: states})
+            q_values = rnn_network.predict(states)
             q_max = np.max(q_values)
 
             if (np.random.random() < settings.test_epsilon): 
