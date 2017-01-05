@@ -52,13 +52,13 @@ class NeuralNetwork(object):
                     # Gradient Descent
                     self.train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(self.obj_function)
 
+            # Specify how accuracy is measured
+            with tf.name_scope('accuracy') as scope:
+                correct_prediction = tf.equal(tf.argmax(self.y,1), tf.argmax(self.y_,1))
+                self.accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
             init = tf.global_variables_initializer()
             self.sess.run(init)
-
-            # Specify how accuracy is measured
-            correct_prediction = tf.equal(tf.argmax(self.y,1), tf.argmax(self.y_,1))
-            self.accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
     '''
     Utilizes the optimizer and objectie function to train the network based on the input and desired output.

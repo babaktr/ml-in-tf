@@ -6,20 +6,6 @@ class GridWorld(object):
         np.random.seed(rand_seed)
         self.field_size = np.max([3, field_size]) # Sets a minimal field_size of 3.
         self.reset()
-        self.init_q_table()
-
-    '''
-    q_table holds the Q-values for n numbers of state-action pairs.
-    Row is for state number
-    Column is for actions 
-
-    [[a_1, a_2, a_3, a_4],
-     [a_1, a_2, a_3, a_4],
-              ...
-     [a_1, a_2, a_3, a_4]]
-    '''
-    def init_q_table(self):
-        self.q_table = np.random.rand(self.field_size * self.field_size, 4)
 
     '''
     Reset field.
@@ -39,8 +25,8 @@ class GridWorld(object):
     '''
     Count state number through actor coordinates.
     '''
-    def actor_state_number(self, x, y):
-        return (x+1) + (y*self.field_size) - 1
+    def actor_state_row(self):
+        return (self.actor[0]+1) + (self.actor[1]*self.field_size) - 1
 
     '''
     Place player, pit and goal each in a stacked matrix (state).
@@ -89,19 +75,12 @@ class GridWorld(object):
 
         self.place_in_state()
 
-    ''' 
-    Extract a state row of Q-values.
-    '''
-    def q_values(self):
-        q_table_row = self.q_table[self.actor_state_number(self.actor[0], self.actor[1]),:]
-        return q_table_row
-
     '''
     Perform action in field.
     '''
     def perform_action(self, action):
         # Save for later update
-        self.old_actor_state_number = self.actor_state_number(self.actor[0], self.actor[1])
+        self.old_actor_state_row = self.actor_state_row()
         old_loc = self.actor
 
         # Up (row - 1)  
@@ -138,19 +117,6 @@ class GridWorld(object):
         self.place_in_state()
 
         return self.state, reward, terminal
-
-    '''
-    Update the table of Q-values
-    '''
-    def update_q_table(self, update, action, learning_rate, terminal):
-        q_value = self.q_table[self.old_actor_state_number, action]
-        
-        if terminal: 
-            # Update with the given 'update' = r + gamma(maxQ(s',a'))
-            self.q_table[self.old_actor_state_number, action] = update
-        else:
-            # Update using the update rule Q(s,a) <- Q(s,a) + lr(r + gamma(maxQ(s',a')) - Q(s,a))
-            self.q_table[self.old_actor_state_number, action] = q_value + learning_rate * (update - q_value)
 
     '''
     Used to visualize a given state.

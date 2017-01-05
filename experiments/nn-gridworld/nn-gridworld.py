@@ -40,7 +40,9 @@ flags.DEFINE_integer('test_step_limit', 1000, 'Limits the number of steps in tes
 
 settings = flags.FLAGS
 
+# Set up GridWorld
 env = GridWorld(settings.field_size, settings.random_seed)
+
 np.random.seed(settings.random_seed)
 
 if settings.use_gpu:

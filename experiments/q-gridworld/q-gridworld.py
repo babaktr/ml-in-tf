@@ -6,6 +6,7 @@ import numpy as np
 import tensorflow as tf
 from stats import Stats
 
+from q_table import QTable
 from gridworld import GridWorld
 
 flags = tf.app.flags
@@ -33,7 +34,11 @@ flags.DEFINE_integer('test_step_limit', 1000, 'Limits the number of steps in tes
 
 settings = flags.FLAGS                                      
 
+# Set up GridWorld
 env = GridWorld(settings.field_size, settings.random_seed)
+# Set up Q-table
+q_table = QTable(settings.field_size, settings.random_seed)
+
 sess = tf.InteractiveSession()
 np.random.seed(settings.random_seed)
 
@@ -60,7 +65,8 @@ while settings.episodes > episode:
     while not terminal and step < settings.train_step_limit: 
         step += 1
         # Get the Q-values of the current state
-        q_values = env.q_values()
+        state_row = env.actor_state_row()
+        q_values = q_table.get_state_q(state_row)
         # Save max(Q(s,a)) for stats
         q_max = np.max(q_values)
 
@@ -88,7 +94,8 @@ while settings.episodes > episode:
         q_max_arr.append(q_max)
         
         # Get the new states Q-values
-        q_values_new = env.q_values()
+        new_state_row = env.actor_state_row()
+        q_values_new = q_table.get_state_q(new_state_row)
         # Get max(Q(s',a')) to update Q(s,a)
         q_max_new = np.max(q_values_new)
         
@@ -100,7 +107,7 @@ while settings.episodes > episode:
             update = reward
 
         # Update Q-table
-        env.update_q_table(update, action, settings.learning_rate, terminal)
+        q_table.update_state_q(update, state_row, action, settings.learning_rate, terminal)
 
     stats.update({'qmax': np.average(q_max_arr),
                 'epsilon': np.average(epsilon_arr),
@@ -112,8 +119,6 @@ while settings.episodes > episode:
         print 'Episode: {}, Steps: {}, Total Reward: {}, Avg Q-max: {}, Avg Epsilon: {}'.format(episode, 
             step, format(np.sum(reward_arr), '.1f'), format(np.average(q_max_arr), '.2f'),
             format(np.average(epsilon_arr), '.2f'))
-
-
 
 if settings.run_test:
     print ' '
@@ -131,7 +136,8 @@ if settings.run_test:
         while not terminal and step < settings.test_step_limit:
             step += 1
             
-            q_values = env.q_values()
+            state_row = env.actor_state_row()
+            q_values = q_table.get_state_q(state_row)
             q_max = np.max(q_values)
 
             if (np.random.random() < settings.test_epsilon): 
