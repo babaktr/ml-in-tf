@@ -19,6 +19,11 @@ flags.DEFINE_boolean('run_test', True, 'If the final model should be tested.')
 
 settings = flags.FLAGS
 
+print('Starting session with: Batches: {} -- Hidden Neurons: {} -- Learning Rate: {} -- Optimizer: {}'.format(settings.batches, 
+                                                                                                            settings.hidden_n, 
+                                                                                                            settings.learning_rate, 
+                                                                                                            settings.optimizer))
+
 # Set up Neural Network
 nn_network = NeuralNetwork(settings.random_seed, 
 						settings.hidden_n,
@@ -51,13 +56,8 @@ for i in range (settings.batches):
 
 if settings.run_test:
     print ' --- TESTING MODEL ---'
-    print('[0.0, 0.0] -- Prediction: {}'.format(sess.run(y, feed_dict={x: np.array([[0.0, 0.0]])})))
-    print('[0.0, 1.0] -- Prediction: {}'.format(sess.run(y, feed_dict={x: np.array([[0.0, 1.0]])})))
-    print('[1.0, 0.0] -- Prediction: {}'.format(sess.run(y, feed_dict={x: np.array([[1.0, 0.0]])})))
-    print('[1.0, 1.0] -- Prediction: {}'.format(sess.run(y, feed_dict={x: np.array([[1.0, 1.0]])})))
-
-	print('Starting session with: Batches: {} -- Hidden Neurons: {} -- Learning Rate: {} -- Optimizer: {}'.format(settings.batches, 
-                                                                                                            	settings.hidden_n, 
-                                                                                                            	settings.learning_rate, 
-                                                                                                            	settings.optimizer)) 
+    print('[0.0, 0.0] -- Prediction: {}'.format(nn_network.predict(np.array([[0.0, 0.0]]))))
+    print('[0.0, 1.0] -- Prediction: {}'.format(nn_network.predict(np.array([[0.0, 1.0]]))))
+    print('[1.0, 0.0] -- Prediction: {}'.format(nn_network.predict(np.array([[1.0, 0.0]]))))
+    print('[1.0, 1.0] -- Prediction: {}'.format(nn_network.predict(np.array([[1.0, 1.0]]))))
            
