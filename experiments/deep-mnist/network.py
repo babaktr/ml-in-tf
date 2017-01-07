@@ -45,27 +45,27 @@ class ConvolutionalNeuralNetwork(object):
             self.y_ = tf.placeholder(tf.float32, shape=[None, 10], name='desired-output')
 
             # Convolutional layer 1 weights and bias
-            W_conv1 = self.weight_variable([5, 5, 1, 32], name='w-conv-1')
-            b_conv1 = self.bias_variable([32], name='b-conv-1')
+            W_conv1 = self.weight_variable([5, 5, 1, 32], name='w-conv1')
+            b_conv1 = self.bias_variable([32], name='b-conv1')
 
             # First conv layer output
-            with tf.name_scope('conv-1') as scope:
+            with tf.name_scope('conv1') as scope:
                 h_conv1 = tf.nn.relu(self.conv2d(x_img, W_conv1) + b_conv1)
 
             # First layer pooling
-            with tf.name_scope('max-pool-1') as scope:
+            with tf.name_scope('max-pool1') as scope:
                 h_pool1 = self.max_pool_2x2(h_conv1)
 
             # Second layer conv weights and biases
-            W_conv2 = self.weight_variable([5, 5, 32, 64], name='w-conv-2')
-            b_conv2 = self.bias_variable([64], name='b-conv-2')
+            W_conv2 = self.weight_variable([5, 5, 32, 64], name='w-conv2')
+            b_conv2 = self.bias_variable([64], name='b-conv2')
 
             # Second layer conv output
-            with tf.name_scope('conv-2') as scope:
+            with tf.name_scope('conv2') as scope:
                 h_conv2 = tf.nn.relu(self.conv2d(h_pool1, W_conv2) + b_conv2)
 
             # Second layer pooling
-            with tf.name_scope('max-pool-2') as scope:
+            with tf.name_scope('max-pool2') as scope:
                 h_pool2 = self.max_pool_2x2(h_conv2)
 
             # Fully connected layer with weights and biases
