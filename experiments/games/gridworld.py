@@ -61,6 +61,16 @@ class GridWorld(object):
         self.state[1] = pit_pos
         self.state[2] = goal_pos
 
+    def compress_state(self):
+        state = np.zeros((self.field_size, self.field_size))
+        state[self.actor[1], self.actor[0]] = 1
+
+        state[self.pit[1], self.pit[0]] = 0.7
+
+        state[self.goal[1], self.goal[0]] = 0.3
+
+        return state
+
     ''' 
     Initialize actor in random location, but keep goal and pit stationary.
     '''

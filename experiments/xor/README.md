@@ -13,6 +13,16 @@ This experiment implements a small Neural Network (or a Multilayer Perceptron) w
   <img src="../../images/networks/xor-network.png", width="50%"/>
 </p>
 
+## Get Started
+To get started, use the terminal to navigate to ```ml-in-tf/experiments/xor/```and run ```python xor.py```.
+
+To see the graph and plots using ```tensorboard```, use the terminal to navigate to ```ml-in-tf/``` and run ```tensorboard --logdir logs/```. Wait for the following message:
+
+```
+Starting TensorBoard on port <port>
+```
+And then open up a browser and go to ```localhost:<port>```.
+
 ## Network
 The network in this experiment has two fixed hidden layers, but with customizable number of neurons in each hidden layers. Given the variables input_size and action_size, the network structure can be described as:
 
