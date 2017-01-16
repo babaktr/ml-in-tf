@@ -8,6 +8,16 @@ We managed to improve the performance of [Q-Gridworld](../q-gridworld) by extend
 
 We're going to have a look how we can solve it by using **Recurrent Neural Network** (RNN), which is similar to a regular Neural Netowrk in many ways, but has the ability to learn sequences rather than a single rows of input vectors, extending its observations in _time_.
 
+## Get Started
+To get started, use the terminal to navigate to ```ml-in-tf/experiments/rnn-gridworld/```and run ```python rnn-gridworld.py```.
+
+To see the graph and plots using ```tensorboard```, use the terminal to navigate to ```ml-in-tf/``` and run ```tensorboard --logdir logs/```. Wait for the following message:
+
+```
+Starting TensorBoard on port <port>
+```
+And then open up a browser and go to ```localhost:<port>```.
+
 ## Parameters
 The customizable parameters of this experiment - and their default values - are as follows:
 #### Q Learning settings

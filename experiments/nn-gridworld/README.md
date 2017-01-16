@@ -11,6 +11,16 @@ At each step, the flattened state ```s``` (defined as a single row of size ```3 
 
 Once the agent has taken its action, the Q-values of the next state ```s'``` are estimated, and the ```max(Q(s',a'))``` is then used to update the previous Q-value ```Q(s,a)``` as stated in [Q-Gridworld](../q-gridworld).
 
+## Get Started
+To get started, use the terminal to navigate to ```ml-in-tf/experiments/nn-gridworld/```and run ```python nn-gridworld.py```.
+
+To see the graph and plots using ```tensorboard```, use the terminal to navigate to ```ml-in-tf/``` and run ```tensorboard --logdir logs/```. Wait for the following message:
+
+```
+Starting TensorBoard on port <port>
+```
+And then open up a browser and go to ```localhost:<port>```.
+
 ## Network 
 
 The network in this experiment has two fixed hidden layers, but with customizable number of neurons in each hidden layers.
