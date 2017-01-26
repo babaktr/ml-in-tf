@@ -1,7 +1,28 @@
 import tensorflow as tf
 
-class NeuralNetwork(object):
-    def __init__(self, device, random_seed, input_size, hidden_l1, hidden_l2, learning_rate, optimizer):
+class ConvolutonalNeuralNetwork(object):
+    '''
+    Set up weight variable.
+    '''
+    def weight_variable(self, shape, name):
+      initial = tf.truncated_normal(shape, stddev=0.1)
+      return tf.Variable(initial, name=name)
+
+    '''
+    Set up bias variable.
+    '''
+    def bias_variable(self, shape, name):
+      initial = tf.constant(0.1, shape=shape)
+      return tf.Variable(initial, name=name)
+
+    '''
+    Set up 2D convolution.
+    '''
+    def conv2d(self, x, W, stride):
+      return tf.nn.conv2d(x, W, strides=[1, stride, stride, 1], 
+                                padding='VALID')
+
+    def __init__(self, index, device, random_seed, input_size, action_size, hidden_l1, hidden_l2, learning_rate, optimizer):
         self.sess = tf.InteractiveSession()
 
         with tf.device(device):
@@ -9,37 +30,49 @@ class NeuralNetwork(object):
             tf.set_random_seed(random_seed)
 
             # Input with shape [?, input_size]
-            self.x = tf.placeholder(tf.float32, shape=[None, input_size], name='x-input')
-            # Desired output with shape [?, 4]
-            self.y_ = tf.placeholder(tf.float32, shape=[None, 4], name='desired-output')
+            self.x = tf.placeholder(tf.float32, shape=[None, 84, 84, 4], name='x_t-input')
+            # Desired output with shape [?, action_size]
+            self.y_ = tf.placeholder(tf.float32, shape=[None, action_size], name='desired-output')
 
-            # Hidden layer 1 weights and bias
-            W_1 = tf.Variable(tf.random_uniform([input_size, hidden_l1]), name='weights-1')
-            b_1 = tf.Variable(tf.zeros([hidden_l1]), name='bias-1')
+            # Convolutional layer 1 weights and bias with stride=4, produces 16 19x19 outputs
+            W_conv1 = self.weight_variable([8, 8, 4, 16], 'w_conv1')
+            b_conv1 = self.bias_variable([16]'bias-1')
+            stride_1 = tf.Variable(4, name='stride_1')
 
-            # Hidden layer 1's output
-            with tf.name_scope('hidden-layer-1') as scope:
-                out_1 = tf.nn.relu(tf.matmul(self.x, W_1) + b_1)
+            # First conv layer output
+             with tf.name_scope('conv-1') as scope:
+                h_1 = tf.nn.relu(tf.conv2d(self.x, W_conv, stride_1) + b_conv1)
 
-            # Hidden layer 2 weights and bias 
-            W_2 = tf.Variable(tf.random_uniform([hidden_l1, hidden_l2]), name='weights-2')
-            b_2 = tf.Variable(tf.zeros([hidden_l2]), name='bias-2')
+            # Second layer conv weights and biases with stride=2, produces 32 9x9 outputs
+            W_conv2 = self.weight_variable([4, 4, 16, 32], name='w-conv2')
+            b_conv2 = self.bias_variable([32], name='b-conv2')
+            stride_2 = tf.Variable(2, name='stride_2')
 
-            # Hidden layer 2's output 
-            with tf.name_scope('hidden-layer-2') as scope:
-                out_2 = tf.nn.relu(tf.matmul(out_1, W_2) + b_2)
 
-            # Hidden layer 3 weights and bias 
-            W_3 = tf.Variable(tf.random_uniform([hidden_l2, 4]), name='weights-3')
-            b_3 = tf.Variable(tf.zeros([4]), name='bias-3')
+            # Convolutional layer 2's output 
+            with tf.name_scope('conv-2') as scope:
+                out_2 = tf.nn.relu(self.conv2d(out_1, W_conv2, stride_2) + b_conv2)
 
-            # Hidden layer 3's output 
+            # 256 Fully connected units with weights and biases
+            W_fc1 = self.weight_variable([9*9*32, 256], name='w-fc')
+            b_fc1 = self.bias_variable([256], name='b-fc')
+
+            # Fully connected layer output
+            with tf.name_scope('fully-connected') as scope:
+                h_conv2_flat = tf.reshape(h_pool2, [-1, 9*9*32])
+                h_fc1 = tf.nn.relu(tf.matmul(h_conv2_flat, W_fc1) + b_fc1)
+
+            # Output layer weights and biases
+            W_fc2 = self.weight_variable([256, action_size], name='w-out')
+            b_fc2 = self.bias_variable([action_size], name='b-out')
+
+            # Output
             with tf.name_scope('output') as scope:
-                self.y = tf.matmul(out_2, W_3) + b_3
+                self.y = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
 
             # Objective function 
             with tf.name_scope('loss') as scope:
-                self.obj_function = tf.sqrt(tf.reduce_mean(tf.square(tf.sub(self.y_, self.y))))
+                self.obj_function = tf.reduce_mean(tf.square(self.y_ - self.y))
 
             with tf.name_scope('train') as scope:
                 if optimizer.lower() == 'adam':
@@ -56,7 +89,7 @@ class NeuralNetwork(object):
             with tf.name_scope('accuracy') as scope:
                 correct_prediction = tf.equal(tf.argmax(self.y,1), tf.argmax(self.y_,1))
                 self.accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-
+                
             init = tf.global_variables_initializer()
             self.sess.run(init)
 

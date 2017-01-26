@@ -29,7 +29,7 @@ flags.DEFINE_integer('train_step_limit', 300, 'Limits the number of steps in tra
 # General Settings
 flags.DEFINE_integer('field_size', 4, 'Determines width and height of the Gridworld field.')
 flags.DEFINE_integer('status_update', 10, 'How often to print an status update.')
-flags.DEFINE_boolean('use_gpu', False, 'If it should run on GPU rather than CPU.')
+flags.DEFINE_boolean('use_gpu', False, 'If TensorFlow operations should run on GPU rather than CPU.')
 flags.DEFINE_integer('random_seed', 123, 'Sets the random seed.')
 
 # Testing settings
@@ -52,10 +52,9 @@ else:
 
 input_size = 3 * settings.field_size * settings.field_size
 
-# Set up Neural Network
-nn_network = NeuralNetwork(device, 
+# Set target Convolutional Neural Network
+target_network = ConvolutionalNeuralNetwork(device, 
                                 settings.random_seed, 
-                                input_size, 
                                 settings.hidden_l1, 
                                 settings.hidden_l2, 
                                 settings.learning_rate, 
@@ -91,19 +90,16 @@ while settings.episodes > episode:
         # Save max(Q(s,a)) for stats
         q_max = np.max(q_values)
         
-        # Anneal epsilon
+        # Anneal epsilon if final epsilon has not been reached
         if epsilon > settings.final_epsilon: 
             epsilon = settings.initial_epsilon - (2*episode / float(settings.episodes))
         else: 
-            # Final epsilon reached, stop annealing.
             epsilon = settings.final_epsilon
 
-        # Select action
+        # Select random action or action with the highest Q-value
         if (np.random.random() < epsilon): 
-            # Choose random action
             action = np.random.randint(0, 4)
         else: 
-            # Choose the action with the highest Q-value
             action = np.argmax(q_values)
 
         # Take action and observe new state and reward, check if state is terminal
@@ -115,11 +111,11 @@ while settings.episodes > episode:
         # Get max(Q(s',a')) to update Q(s,a)
         q_max_new = np.max(q_values_new)
 
+        # Non-terminal state: update with reward + gamma * max(Q(s',a')
+        # Terminal state: update using reward
         if not terminal: 
-            # Non-terminal state, update with reward + gamma * max(Q(s'a')
             update = reward + (settings.gamma * q_max_new)
         else: 
-            # Terminal state, update using reward
             update = reward
 
         # Updated the desired output for training the network
@@ -150,10 +146,10 @@ while settings.episodes > episode:
                 'steps': step,
                 'step': episode
                 }) 
-    if episode % settings.status_update == 0:
-        print 'Episode: {}, Steps: {}, Reward: {}, Qmax: {}, Loss: {}, Accuracy: {}, Epsilon: {}'.format(episode, 
-    	   step, np.sum(reward_arr), format(np.average(q_max_arr), '.1f'),  format(np.average(loss_arr), '.4f'), 
-            format(np.average(acc_arr), '.2f'), format(np.average(epsilon_arr), '.2f'))
+
+    print 'Episode: {}, Steps: {}, Reward: {}, Qmax: {}, Loss: {}, Accuracy: {}, Epsilon: {}'.format(episode, 
+        step, np.sum(reward_arr), format(np.average(q_max_arr), '.1f'),  format(np.average(loss_arr), '.4f'), 
+        format(np.average(acc_arr), '.2f'), format(np.average(epsilon_arr), '.2f'))
 
 if settings.run_test:
     print ' '

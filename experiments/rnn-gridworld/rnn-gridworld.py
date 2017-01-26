@@ -30,7 +30,7 @@ flags.DEFINE_integer('train_step_limit', 300, 'Limits the number of steps in tra
 # General Settings
 flags.DEFINE_integer('field_size', 4, 'Determines width and height of the Gridworld field.')
 flags.DEFINE_integer('status_update', 10, 'How often to print an status update.')
-flags.DEFINE_boolean('use_gpu', False, 'If it should run on GPU rather than CPU.')
+flags.DEFINE_boolean('use_gpu', False, 'If TensorFlow operations should run on GPU rather than CPU.')
 flags.DEFINE_integer('random_seed', 123, 'Sets the random seed.')
 
 # Testing settings
@@ -132,7 +132,7 @@ while settings.episodes > episode:
         q_max_new = np.max(q_values_new)
 
         if not terminal: 
-            # Non-terminal state, update with reward + gamma * max(Q(s'a')
+            # Non-terminal state, update with reward + gamma * max(Q(s',a')
             update = reward + (settings.gamma * q_max_new)
         else: 
             # Terminal state, update using reward

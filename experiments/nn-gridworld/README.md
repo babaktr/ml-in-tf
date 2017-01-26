@@ -56,7 +56,7 @@ The customizable parameters of this experiment - and their default values - are 
 #### General settings
 * ```field_size``` -  ```4``` - Determines width and height of the Gridworld field.
 * ```status_update``` -  ```10``` - How often to print an status update.
-* ```use_gpu``` -  ```False``` - If it should run on GPU rather than CPU.
+* ```use_gpu``` -  ```False``` - If TensorFlow operations should run on GPU rather than CPU.
 * ```random_seed``` - ```123``` -  Number of minibatches to run the training on.
 
 #### Testing settings
