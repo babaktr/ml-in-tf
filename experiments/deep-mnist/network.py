@@ -41,8 +41,8 @@ class ConvolutionalNeuralNetwork(object):
             self.x = tf.placeholder(tf.float32, shape=[None, 784], name='x-input')
             # reshape to 28x28
             x_img = tf.reshape(self.x, [-1,28,28,1])
-            # Desired output of one value
-            self.y_ = tf.placeholder(tf.float32, shape=[None, 10], name='desired-output')
+            # Target output of one value
+            self.y_ = tf.placeholder(tf.float32, shape=[None, 10], name='target-output')
 
             # Convolutional layer 1 weights and bias
             with tf.name_scope('conv1') as scope
@@ -117,12 +117,12 @@ class ConvolutionalNeuralNetwork(object):
                 self.accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
     '''
-    Utilizes the optimizer and objectie function to train the network based on the input and desired output.
+    Utilizes the optimizer and objectie function to train the network based on the input and target output.
     '''
-    def train(self, x_input, desired_output):
+    def train(self, x_input, target_output):
         _, loss = self.sess.run([self.train_step, self.obj_function],
                                 feed_dict={self.x: x_input,
-                                        self.y_: desired_output,
+                                        self.y_: target_output,
                                         self.keep_prob: 0.5})
         return loss
 
@@ -136,11 +136,11 @@ class ConvolutionalNeuralNetwork(object):
         return predicted_output
 
     '''
-    Measures the accuracy of the network based on the specified accuracy measure, the input and the desired output.
+    Measures the accuracy of the network based on the specified accuracy measure, the input and the target output.
     '''
-    def get_accuracy(self, x_input, desired_output):
+    def get_accuracy(self, x_input, target_output):
         acc = self.sess.run(self.accuracy, 
                             feed_dict={self.x: x_input, 
-                                    self.y_: desired_output,
+                                    self.y_: target_output,
                                     self.keep_prob: 1.0})
         return acc

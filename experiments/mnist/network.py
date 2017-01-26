@@ -10,8 +10,8 @@ class NeuralNetwork(object):
 
             # Input with shape [?, 784]
             self.x = tf.placeholder(tf.float32, shape=[None, 784], name='x-input')
-            # Desired output with shape [?, 10]
-            self.y_ = tf.placeholder(tf.float32, shape=[None, 10], name='desired-output')
+            # Target output with shape [?, 10]
+            self.y_ = tf.placeholder(tf.float32, shape=[None, 10], name='target-output')
 
             # Hidden layer 1 weights and bias
             W = tf.Variable(tf.truncated_normal([784, 10]), name='weights-1')
@@ -46,12 +46,12 @@ class NeuralNetwork(object):
             self.sess.run(init)
 
     '''
-    Utilizes the optimizer and objectie function to train the network based on the input and desired output.
+    Utilizes the optimizer and objectie function to train the network based on the input and target output.
     '''
-    def train(self, x_input, desired_output):
+    def train(self, x_input, target_output):
         _, loss = self.sess.run([self.train_step, self.obj_function],
                     feed_dict={self.x: x_input,
-                            self.y_: desired_output})
+                            self.y_: target_output})
         return loss
 
     '''
@@ -62,9 +62,9 @@ class NeuralNetwork(object):
         return predicted_output
 
     '''
-    Measures the accuracy of the network based on the specified accuracy measure, the input and the desired output.
+    Measures the accuracy of the network based on the specified accuracy measure, the input and the target output.
     '''
-    def get_accuracy(self, x_input, desired_output):
+    def get_accuracy(self, x_input, target_output):
         acc = self.sess.run(self.accuracy, feed_dict={self.x: x_input, 
-                                            self.y_: desired_output})
+                                                    self.y_: target_output})
         return acc

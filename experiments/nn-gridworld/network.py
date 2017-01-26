@@ -32,7 +32,7 @@ class ConvolutonalNeuralNetwork(object):
             # Input with shape [?, input_size]
             self.x = tf.placeholder(tf.float32, shape=[None, 84, 84, 4], name='x_t-input')
             # Desired output with shape [?, action_size]
-            self.y_ = tf.placeholder(tf.float32, shape=[None, action_size], name='desired-output')
+            self.y_ = tf.placeholder(tf.float32, shape=[None, action_size], name='target-output')
 
             # Convolutional layer 1 weights and bias with stride=4, produces 16 19x19 outputs
             W_conv1 = self.weight_variable([8, 8, 4, 16], 'w_conv1')
@@ -94,12 +94,12 @@ class ConvolutonalNeuralNetwork(object):
             self.sess.run(init)
 
     '''
-    Utilizes the optimizer and objectie function to train the network based on the input and desired output.
+    Utilizes the optimizer and objectie function to train the network based on the input and target output.
     '''
-    def train(self, x_input, desired_output):
+    def train(self, x_input, target_output):
         _, loss = self.sess.run([self.train_step, self.obj_function],
                     feed_dict={self.x: x_input,
-                            self.y_: desired_output})
+                            self.y_: target_output})
         return loss
 
     '''
@@ -110,9 +110,9 @@ class ConvolutonalNeuralNetwork(object):
         return predicted_output
 
     '''
-    Measures the accuracy of the network based on the specified accuracy measure, the input and the desired output.
+    Measures the accuracy of the network based on the specified accuracy measure, the input and the target output.
     '''
-    def get_accuracy(self, x_input, desired_output):
+    def get_accuracy(self, x_input, target_output):
         acc = self.sess.run(self.accuracy, feed_dict={self.x: x_input, 
-                                            self.y_: desired_output})
+                                                    self.y_: target_output})
         return acc

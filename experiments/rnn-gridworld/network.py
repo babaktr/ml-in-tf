@@ -11,7 +11,7 @@ class RecurrentNeuralNetwork(object):
             # Input with shape 
             self.x = tf.placeholder(tf.float32, shape=[sequence_length, None, input_size], name='x-input')
             # Desired output
-            self.y_ = tf.placeholder(tf.float32, shape=[None, 4], name='desired-output')
+            self.y_ = tf.placeholder(tf.float32, shape=[None, 4], name='target-output')
 
             # Weights and bias
             W = tf.Variable(tf.random_uniform([hidden, 4]), name='weights')
@@ -56,12 +56,12 @@ class RecurrentNeuralNetwork(object):
             init = tf.global_variables_initializer()
             self.sess.run(init)
     '''
-    Utilizes the optimizer and objectie function to train the network based on the input and desired output.
+    Utilizes the optimizer and objectie function to train the network based on the input and target output.
     '''
-    def train(self, x_input, desired_output):
+    def train(self, x_input, target_output):
         _, loss = self.sess.run([self.train_step, self.obj_function],
                     feed_dict={self.x: x_input,
-                            self.y_: desired_output})
+                            self.y_: target_output})
         return loss
 
     '''
@@ -72,9 +72,9 @@ class RecurrentNeuralNetwork(object):
         return predicted_output
 
     '''
-    Measures the accuracy of the network based on the specified accuracy measure, the input and the desired output.
+    Measures the accuracy of the network based on the specified accuracy measure, the input and the target output.
     '''
-    def get_accuracy(self, x_input, desired_output):
+    def get_accuracy(self, x_input, target_output):
         acc = self.sess.run(self.accuracy, feed_dict={self.x: x_input, 
-                                            self.y_: desired_output})
+                                                    self.y_: target_output})
         return acc
