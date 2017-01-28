@@ -39,7 +39,7 @@ summary_dir = '../../logs/mnist-hidden{}-lr{}-minibatches{}-{}/'.format(10, sett
 summary_writer = tf.summary.FileWriter(summary_dir, nn_network.sess.graph)
 stats = Stats(nn_network.sess, summary_writer, 2)
 
-for i in range (settings.minibatches): 
+for i in range(settings.minibatches): 
     # Get minibatch
     batch_xs, batch_ys = mnist.train.next_batch(settings.minibatch_size)
 
