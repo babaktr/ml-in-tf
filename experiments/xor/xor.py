@@ -41,7 +41,7 @@ summary_writer = tf.summary.FileWriter(summary_dir, nn_network.sess.graph)
 stats = Stats(nn_network.sess, summary_writer, 2)
 
 
-for i in range (settings.batches): 
+for i in range(settings.batches): 
     # Calculate batch accuracy
     acc = nn_network.get_accuracy(training_inputs, training_outputs)
 
