@@ -2,31 +2,36 @@ import tensorflow as tf
 
 class NeuralNetwork(object):
     def __init__(self, device, random_seed, learning_rate, optimizer):
-        self.sess = tf.InteractiveSession()
+        self.sess = tf.Session()
 
         with tf.device(device):
             # Set random seed
             tf.set_random_seed(random_seed)
 
             # Input with shape [?, 784]
-            self.x = tf.placeholder(tf.float32, shape=[None, 784], name='x-input')
+            with tf.name_scope('input') as scope:
+                self.x = tf.placeholder(tf.float32, shape=[None, 784], name='x-input')
+
             # Target output with shape [?, 10]
-            self.y_ = tf.placeholder(tf.float32, shape=[None, 10], name='target-output')
+            with tf.name_scope('target_output') as scope:
+                self.y_ = tf.placeholder(tf.float32, shape=[None, 10], name='target-output')
 
-            # Hidden layer 1 weights and bias
-            W = tf.Variable(tf.truncated_normal([784, 10]), name='weights-1')
-            b = tf.Variable(tf.zeros([10]), name='bias-1')
+            # Hidden layer 1
+            with tf.name_scope('fully-connected') as scope:
+                # Hidden layer 1 weights and bias
+                W = tf.Variable(tf.truncated_normal([784, 10]), name='weights-1')
+                b = tf.Variable(tf.zeros([10]), name='bias-1')
 
-            # Output with shape [?, 10]
-            with tf.name_scope('output') as scope:
-                self.y = tf.nn.softmax(tf.matmul(self.x, W) + b)
+                # Output with shape [?, 10]
+                with tf.name_scope('fully-connected-out') as scope:
+                    self.y = tf.nn.softmax(tf.matmul(self.x, W) + b)
 
             # Objective function - Cross Entropy
             # E = - SUM(y_ * log(y))
             with tf.name_scope('loss') as scope:
                 self.obj_function = tf.reduce_mean(-tf.reduce_sum(self.y_ * tf.log(self.y), reduction_indices=[1]))
 
-            with tf.name_scope('train') as scope:
+            with tf.name_scope('optimizer') as scope:
                 if optimizer.lower() == 'adam':
                     # Adam Optimizer
                     self.train_step = tf.train.AdamOptimizer(learning_rate).minimize(self.obj_function)

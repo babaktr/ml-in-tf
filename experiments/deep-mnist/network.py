@@ -38,18 +38,23 @@ class ConvolutionalNeuralNetwork(object):
             tf.set_random_seed(random_seed)
 
             # Input
-            self.x = tf.placeholder(tf.float32, shape=[None, 784], name='x-input')
-            # reshape to 28x28
-            x_img = tf.reshape(self.x, [-1,28,28,1])
-            # Target output of one value
-            self.y_ = tf.placeholder(tf.float32, shape=[None, 10], name='target-output')
+            with tf.name_scope('input') as scope:
+                self.x = tf.placeholder(tf.float32, shape=[None, 784], name='x-input')
+                with tf.name_scope('pre-process') as scope:
+                    # reshape to 28x28
+                    x_img = tf.reshape(self.x, [-1,28,28,1])
 
-            # Convolutional layer 1 weights and bias
-            with tf.name_scope('conv1') as scope
+            # Target output of one value
+            with tf.name_scope('target_output') as scope:
+                self.y_ = tf.placeholder(tf.float32, shape=[None, 10], name='target-output')
+
+            # Convolutional layer 1
+            with tf.name_scope('conv1') as scope:
+                # Convolutional layer 1 weights and bias
                 W_conv1 = self.weight_variable([5, 5, 1, 32], name='w-conv1')
                 b_conv1 = self.bias_variable([32], name='b-conv1')
 
-                # First conv layer output
+                # Layer output
                 with tf.name_scope('conv1-out') as scope:
                     h_conv1 = tf.nn.relu(self.conv2d(x_img, W_conv1) + b_conv1)
 
@@ -57,12 +62,13 @@ class ConvolutionalNeuralNetwork(object):
             with tf.name_scope('max-pool1') as scope:
                 h_pool1 = self.max_pool_2x2(h_conv1)
 
-            # Second layer conv weights and biases
-            with tf.name_scope('conv2') as scope
+            # Second layer convolution
+            with tf.name_scope('conv2') as scope:
+                # Second layer conv weights and biases
                 W_conv2 = self.weight_variable([5, 5, 32, 64], name='w-conv2')
                 b_conv2 = self.bias_variable([64], name='b-conv2')
 
-                # Second layer conv output
+                # Layer output
                 with tf.name_scope('conv2-out') as scope:
                     h_conv2 = tf.nn.relu(self.conv2d(h_pool1, W_conv2) + b_conv2)
 

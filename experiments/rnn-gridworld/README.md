@@ -1,7 +1,7 @@
 # RNN-Gridworld Experiment
 
 <p align="center">
-  <img src="../../images/graphs/rnn-graph.png", width="50%"/>
+  <img src="../../images/graphs/rnn-gridworld-graph.png", width="50%"/>
 </p>
 
 We managed to improve the performance of [Q-Gridworld](../q-gridworld) by extending it using a [Neural Network](../nn-gridworld) to estimate the Q-values instead of storing them in a table. What is the step if we want to further improve its performance?

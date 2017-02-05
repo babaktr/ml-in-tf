@@ -9,13 +9,12 @@ class RecurrentNeuralNetwork(object):
             tf.set_random_seed(random_seed)
 
             # Input with shape 
-            self.x = tf.placeholder(tf.float32, shape=[sequence_length, None, input_size], name='x-input')
-            # Desired output
-            self.y_ = tf.placeholder(tf.float32, shape=[None, 4], name='target-output')
+            with tf.name_scope('input') as scope:
+                self.x = tf.placeholder(tf.float32, shape=[sequence_length, None, input_size], name='x-input')
 
-            # Weights and bias
-            W = tf.Variable(tf.random_uniform([hidden, 4]), name='weights')
-            b = tf.Variable(tf.random_uniform([4]), name='bias')
+            # Target output
+            with tf.name_scope('target_output') as scope:
+                self.y_ = tf.placeholder(tf.float32, shape=[None, 4], name='target-output')
 
             with tf.name_scope('pre-process'):
                 # Reshape input from [3, ?, input_size]
@@ -23,12 +22,21 @@ class RecurrentNeuralNetwork(object):
                 # Split input to shape [3, [?, input_size]]
                 x_2 = tf.split(0, sequence_length, x_1)
 
-            # Set up basic LSTM cell with forget_bias = 1
-            lstm_cell = tf.nn.rnn_cell.BasicLSTMCell(hidden, forget_bias=1.0, state_is_tuple=True)
-            lstm_cell = tf.nn.rnn_cell.MultiRNNCell([lstm_cell] * rnn_layers, state_is_tuple=True)
+            # RNN
+            with tf.name_scope('RNN') as scope:
+                # Weights and bias
+                W = tf.Variable(tf.random_uniform([hidden, 4]), name='weights')
+                b = tf.Variable(tf.random_uniform([4]), name='bias')
 
-            # Get outputs of RNN layer
-            outputs, state = tf.nn.rnn(lstm_cell, x_2, dtype=tf.float32)
+                # LSTM Cell
+                with tf.name_scope('LSTM_cell') as scope:
+                    # Set up basic LSTM cell with forget_bias = 1
+                    lstm_cell = tf.nn.rnn_cell.BasicLSTMCell(hidden, forget_bias=1.0, state_is_tuple=True)
+                    lstm_cell = tf.nn.rnn_cell.MultiRNNCell([lstm_cell] * rnn_layers, state_is_tuple=True)
+
+                    # Get outputs of LSTM layer
+                    with tf.name_scope('LSTM-out'):
+                        outputs, state = tf.nn.rnn(lstm_cell, x_2, dtype=tf.float32)
 
             with tf.name_scope('output') as scope:
                 self.y = tf.matmul(outputs[-1], W) + b
@@ -37,7 +45,7 @@ class RecurrentNeuralNetwork(object):
             with tf.name_scope('loss') as scope:
                 self.obj_function = tf.sqrt(tf.reduce_mean(tf.square(tf.sub(self.y_, self.y))))
 
-            with tf.name_scope('train') as scope:
+            with tf.name_scope('optimizer') as scope:
                 if optimizer.lower() == 'adam':
                     # Adam Optimizer
                     self.train_step = tf.train.AdamOptimizer(learning_rate).minimize(self.obj_function)

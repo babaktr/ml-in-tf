@@ -52,13 +52,14 @@ else:
 
 input_size = 3 * settings.field_size * settings.field_size
 
-# Set target Convolutional Neural Network
-target_network = ConvolutionalNeuralNetwork(device, 
-                                settings.random_seed, 
-                                settings.hidden_l1, 
-                                settings.hidden_l2, 
-                                settings.learning_rate, 
-                                settings.optimizer)
+# Set Neural Network
+nn_network = NeuralNetwork(device, 
+                        settings.random_seed, 
+                        input_size,
+                        settings.hidden_l1, 
+                        settings.hidden_l2, 
+                        settings.learning_rate, 
+                        settings.optimizer)
 
 # Statistics summary writer
 summary_dir = '../../logs/nn-gridworld-fieldsize{}-episodes{}-hidden1_{}-hidden2_{}-lr{}-{}/'.format(settings.field_size,
