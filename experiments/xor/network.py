@@ -8,33 +8,42 @@ class NeuralNetwork(object):
         tf.set_random_seed(random_seed)
 
         # Input of two values
-        self.x = tf.placeholder(tf.float32, shape=[None, 2], name='x-input')
+        with tf.name_scope('input') as scope:
+            self.x = tf.placeholder(tf.float32, shape=[None, 2], name='x-input')
+
         # Target output of one value
-        self.y_ = tf.placeholder(tf.float32, shape=[None, 1], name='target-output')
+        with tf.name_scope('target_output') as scope: 
+            self.y_ = tf.placeholder(tf.float32, shape=[None, 1], name='target-output')
 
-        # Hidden layer 1 weights and bias
-        W_1 = tf.Variable(tf.truncated_normal([2, hidden_n]), name='weights-1')
-        b_1 = tf.Variable(tf.zeros([hidden_n]), name='bias-1')
+        # Hidden layer 1
+        with tf.name_scope('hidden-layer-1') as scope: 
+            # Hidden layer 1 weights and bias
+            W_1 = tf.Variable(tf.truncated_normal([2, hidden_n]), name='weights-1')
+            b_1 = tf.Variable(tf.zeros([hidden_n]), name='bias-1')
 
-        # Hidden layer 1's output
-        with tf.name_scope('hidden-layer-1') as scope:
-            out_1 = tf.nn.sigmoid(tf.matmul(self.x, W_1) + b_1)
+            # Hidden layer 1's output
+            with tf.name_scope('hidden-layer-1-out') as scope:
+                out_1 = tf.nn.sigmoid(tf.matmul(self.x, W_1) + b_1)
 
-        # Hidden layer 2 weights and bias 
-        W_2 = tf.Variable(tf.truncated_normal([hidden_n, 2]), name='weights-2')
-        b_2 = tf.Variable(tf.zeros([2]), name='bias-2')
+        # Hidden layer 2
+        with tf.name_scope('hidden-layer-2') as scope: 
+            # Hidden layer 2 weights and bias 
+            W_2 = tf.Variable(tf.truncated_normal([hidden_n, 2]), name='weights-2')
+            b_2 = tf.Variable(tf.zeros([2]), name='bias-2')
 
-        # Hidden layer 2's output 
-        with tf.name_scope('hidden-layer-2') as scope:
-            out_2 = tf.nn.sigmoid(tf.matmul(out_1, W_2) + b_2)
+            # Hidden layer 2's output 
+            with tf.name_scope('hidden-layer-2-out') as scope:
+                out_2 = tf.nn.sigmoid(tf.matmul(out_1, W_2) + b_2)
 
-        # Output layer weights and bias 
-        W_3 = tf.Variable(tf.truncated_normal([2,1]), name='weights-3')
-        b_3 = tf.Variable(tf.zeros([1]), name='bias-3')
+        # Output layer
+        with tf.name_scope('output') as scope:
+            # Output layer weights and bias  
+            W_3 = tf.Variable(tf.truncated_normal([2,1]), name='weights-3')
+            b_3 = tf.Variable(tf.zeros([1]), name='bias-3')
 
-        # Output layer's output
-        with tf.name_scope('output-layer') as scope:
-            self.y = tf.nn.sigmoid(tf.matmul(out_2, W_3) + b_3)
+            # Output layer's output
+            with tf.name_scope('output_value') as scope:
+                self.y = tf.nn.sigmoid(tf.matmul(out_2, W_3) + b_3)
 
         # Objective function 
         # E = - 1/2 (y - y_)^2
@@ -42,7 +51,7 @@ class NeuralNetwork(object):
             self.obj_function = tf.multiply(0.5, tf.reduce_sum(tf.sub(self.y, self.y_) * tf.sub(self.y, self.y_)))
 
         # Set optimizer
-        with tf.name_scope('train') as scope:
+        with tf.name_scope('optimizer') as scope:
             if optimizer.lower() == 'adam':
                 # Adam Optimizer
                 self.train_step = tf.train.AdamOptimizer(learning_rate).minimize(self.obj_function)
