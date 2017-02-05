@@ -15,12 +15,12 @@ It is currently under construction, but if you have any feedback, suggestions or
 
 ### Implemented Examples
 * [Q-Gridworld](/experiments/q-gridworld) (See also: [NN-Gridworld](/experiments/nn-gridworld), [RNN-Gridworld](/experiments/rnn-gridworld))
-* [Asynchronous 1-step Deep Reinforcement Learning](https://github.com/babaktr/asynchronous_1step) (_Work in progress_)
+* [Asynchronous 1-step Deep Reinforcement Learning](https://github.com/babaktr/asynchronous_1step) (_Advanced_, **Work in progress**)
 
 
 ### Good reads
 * [Deep Reinforcement Learning: Pong from pixels](http://karpathy.github.io/2016/05/31/rl/)
-* [Dissecting Reinforcement Learning](https://mpatacchiola.github.io/blog/2016/12/09/dissecting-reinforcement-learning.html)
+* [Dissecting Reinforcement Learning](https://mpatacchiola.github.io/blog/2016/12/09/dissecting-reinforcement-learning.html) - ([Part 1](https://mpatacchiola.github.io/blog/2016/12/09/dissecting-reinforcement-learning.html), [Part 2](https://mpatacchiola.github.io/blog/2017/01/15/dissecting-reinforcement-learning-2.html), [Part 3](https://mpatacchiola.github.io/blog/2017/01/29/dissecting-reinforcement-learning-3.html))
 * [Demystifying Deep Reinforcement Learning](https://www.nervanasys.com/demystifying-deep-reinforcement-learning/) - ([Part 1](https://www.nervanasys.com/demystifying-deep-reinforcement-learning/), [Part 2](https://www.nervanasys.com/deep-reinforcement-learning-with-neon/), [Part 3](https://www.nervanasys.com/openai/))
 * [Asynchronous Deep Reinforcement Learning from pixels](https://dbobrenko.github.io/2016/11/03/async-deeprl.html)
 
