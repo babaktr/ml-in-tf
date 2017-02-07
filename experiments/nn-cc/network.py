@@ -12,15 +12,12 @@ class NeuralNetwork(object):
             with tf.name_scope('input') as scope:
                 # Action input batch with shape [?, action_size]
                 self.a = tf.placeholder(tf.float32, [None, action_size], name='action-input')
-                print self.a
 
                 # State input 
                 self.s = tf.placeholder(tf.float32, shape=[None, state_size], name='s-input')
-                print self.s
 
                 # Target Q-value batch with shape [?, 1]
                 self.y = tf.placeholder(tf.float32, shape=[None, 1], name='target-q_value')
-                print self.y
 
             previous_layer = self.s
             previous_size = state_size
@@ -55,14 +52,12 @@ class NeuralNetwork(object):
                 # Output output 
                 with tf.name_scope('output_value') as scope:
                     self.q_values = tf.matmul(out, W_out) + b_out
-                    print self.q_values
 
             with tf.name_scope('optimizer') as scope:
                 self.lr = tf.Variable(0, name='learn_rate-input')
 
                 with tf.name_scope('loss'):
                     target_q_value = tf.reduce_sum(tf.multiply(self.q_values, self.a), reduction_indices=1)
-                    print target_q_value
                     self.loss_function = tf.reduce_mean(tf.square(tf.subtract(self.y, target_q_value)))
 
                 if optimizer.lower() == 'adam':
@@ -90,15 +85,12 @@ class NeuralNetwork(object):
     def train(self, s_input, a_input, y_input, learn_rate):
         with tf.device(self.device):
             _, loss = self.sess.run([self.train_op, self.loss_function], feed_dict={self.s: np.vstack(s_input), self.a: np.vstack(a_input), self.y: np.vstack(y_input), self.lr: learn_rate})
-            print loss
+            return loss
 
     '''
     Feeds a value through the network and produces an output.
     '''
     def predict(self, s_input):
         with tf.device(self.device):
-            print 'here!!'
-            a = np.swapaxes(s_input, 0,1)
-            print a.shape
             predicted_output = self.sess.run(self.q_values, feed_dict={self.s: np.vstack(s_input)})
             return predicted_output

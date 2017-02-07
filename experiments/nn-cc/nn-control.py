@@ -11,15 +11,15 @@ from network import NeuralNetwork
 flags = tf.app.flags
 
 # Q-Learning settings
-flags.DEFINE_integer('episodes', 1000, 'Number of episodes to run the training on.')
+flags.DEFINE_integer('episodes', 500, 'Number of episodes to run the training on.')
 flags.DEFINE_float('gamma', 0.99, 'Sets the discount in Q-Learning (gamma).')
-flags.DEFINE_float('initial_epsilon', 1.0, 'Initial epsilon value that epsilon will be annealed from.')
-flags.DEFINE_float('final_epsilon', 0.1, 'Final epsilon value that epsilon will be annealed to.')
+flags.DEFINE_float('initial_epsilon', 0.5, 'Initial epsilon value that epsilon will be annealed from.')
+flags.DEFINE_float('final_epsilon', 0.01, 'Final epsilon value that epsilon will be annealed to.')
 
 # Network settings
-flags.DEFINE_integer('hidden_layers', 2, 'Number of hidden layers.')
-flags.DEFINE_integer('hidden_nodes', 10, 'Number of neurons in each hidden layer.')
-flags.DEFINE_integer('batch_size', 2, 'Size of each training batch.')
+flags.DEFINE_integer('hidden_layers', 1, 'Number of hidden layers.')
+flags.DEFINE_integer('hidden_nodes', 5, 'Number of neurons in each hidden layer.')
+flags.DEFINE_integer('batch_size', 1, 'Size of each training batch.')
 
 # Training settings
 flags.DEFINE_float('learning_rate', 0.001, 'Learning rate of the optimizer.')
@@ -46,15 +46,6 @@ else:
 
 state = env.reset()
 
-
-print device
-print settings.random_seed
-print len(state)
-print env.action_space.n
-print settings.hidden_layers
-print settings.hidden_nodes
-print settings.learning_rate
-print settings.optimizer
 # Set Neural Network
 nn_network = NeuralNetwork(device, 
                         settings.random_seed, 
@@ -66,8 +57,8 @@ nn_network = NeuralNetwork(device,
                         settings.optimizer)
 
 # Statistics summary writer
-summary_dir = '../../logs/nn-classic/'#.format(settings.field_size,
-    #settings.episodes, settings.hidden_l1, settings.hidden_l2, settings.learning_rate, settings.optimizer)
+summary_dir = '../../logs/nn-classic_game-{}_episodes-{}_hiddenlayers-{}_hiddennodes-{}_batchsize-{}_lr-{}_optimizer-{}/'.format(settings.game, settings.episodes,
+    settings.hidden_layers, settings.hidden_nodes, settings.batch_size, settings.learning_rate, settings.optimizer)
 summary_writer = tf.summary.FileWriter(summary_dir, nn_network.sess.graph)
 stats = Stats(nn_network.sess, summary_writer, 4)
 
@@ -90,19 +81,23 @@ while settings.episodes > episode:
     target_batch = []
     action_batch = []
 
+    state_replay = []
+    target_replay = []
+    action_replay = []
+
     state = env.reset()
 
     while not terminal: 
         step += 1
         # Get the Q-values of the current state
-        q_values = nn_network.predict(state)
+        q_values = nn_network.predict([state])
         # Save max(Q(s,a)) for stats
         q_max = np.max(q_values)
-        env.render()
+        #env.render()
         
         # Anneal epsilon if final epsilon has not been reached
         if epsilon > settings.final_epsilon: 
-            epsilon = settings.initial_epsilon - (2*episode / float(settings.episodes))
+            epsilon = settings.initial_epsilon - (7*episode / float(settings.episodes))
         else: 
             epsilon = settings.final_epsilon
 
@@ -113,10 +108,10 @@ while settings.episodes > episode:
             action = np.argmax(q_values)
 
         # Take action and observe new state and reward, check if state is terminal
-        new_state, reward, terminal, _ = env.perform_action(action)
+        new_state, reward, terminal, _ = env.step(action)
        
        	# Get the new state's Q-values
-        q_values_new = nn_network.predict(new_state)
+        q_values_new = nn_network.predict([new_state])
 
         # Get max(Q(s',a')) to update Q(s,a)
         q_max_new = np.max(q_values_new)
@@ -131,24 +126,37 @@ while settings.episodes > episode:
         onehot_action = np.zeros(env.action_space.n)
         onehot_action[action] = 1
 
-        state_batch.append(state)
+        state_batch.append([state])
         target_batch.append([update])
         action_batch.append(onehot_action)
+
+        state_replay.append([state])
+        target_replay.append([update])
+        action_replay.append(onehot_action)
 
         # Save values for stats
         epsilon_arr.append(epsilon)
         reward_arr.append(reward)
         q_max_arr.append(q_max)
-        loss_arr.append(loss)
-        acc_arr.append(acc)
+        acc_arr.append(0)
 
 
         # Calculate accuracy
         #acc = nn_network.get_accuracy(state.reshape(1, input_size), q_values) 
         if step % settings.batch_size == 0 or terminal:
+            count = step
+            #if len(state_replay) > settings.batch_size+100:
+            #    while count <= settings.batch_size+100:
+            #        print 'sample add'
+            #        state_batch += state_replay[np.random.randint(0,len(state_replay))]
+            #        target_batch += target_batch[np.random.randint(0,len(target_replay))]
+            #        action_batch += action_batch[np.random.randint(0,len(action_replay))]
+            #        count += 1
             # Run training
             loss = nn_network.train(state_batch, action_batch, target_batch, settings.learning_rate)
+            loss_arr.append(loss)
 
+        if terminal:
             # Episode ended, update log and print stats
             stats.update({'loss':np.average(loss_arr), 
                     'accuracy': np.average(acc_arr),
@@ -161,6 +169,7 @@ while settings.episodes > episode:
             print 'Episode: {}, Steps: {}, Reward: {}, Qmax: {}, Loss: {}, Accuracy: {}, Epsilon: {}'.format(episode, 
                     step, np.sum(reward_arr), format(np.average(q_max_arr), '.1f'),  format(np.average(loss_arr), '.4f'), 
                     format(np.average(acc_arr), '.2f'), format(np.average(epsilon_arr), '.2f'))
+
         else:
             # Set the current state to the new state
             state = new_state
