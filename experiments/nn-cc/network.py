@@ -22,6 +22,8 @@ class NeuralNetwork(object):
             previous_layer = self.s
             previous_size = state_size
 
+            weight_initializer = tf.contrib.layers.xavier_initializer()
+
             # Hidden layer 1
             out_array = []
             for n in range(hidden_layers):
@@ -29,7 +31,7 @@ class NeuralNetwork(object):
                 with tf.name_scope(layer_name) as scope:
                     # Hidden layer 1 weights and bias
                     W_name = 'weight-' + str(n+1)
-                    W = tf.Variable(tf.random_uniform([previous_size, hidden_nodes]), name=W_name)
+                    W = tf.Variable(weight_initializer(shape=[previous_size, hidden_nodes]), name=W_name)
                     b_name = 'bias-' + str(n+1)
                     b = tf.Variable(tf.zeros([hidden_nodes]), name=b_name)
 
@@ -46,7 +48,7 @@ class NeuralNetwork(object):
             # Ouptut layer
             with tf.name_scope('output') as scope:
                 # Ouptut layer weights and bias 
-                W_out = tf.Variable(tf.random_uniform([hidden_nodes, action_size]), name='weight-out')
+                W_out = tf.Variable(weight_initializer(shape=[hidden_nodes, action_size]), name='weight-out')
                 b_out = tf.Variable(tf.zeros(action_size), name='bias-out')
 
                 # Output output 
@@ -54,7 +56,7 @@ class NeuralNetwork(object):
                     self.q_values = tf.matmul(out, W_out) + b_out
 
             with tf.name_scope('optimizer') as scope:
-                self.lr = tf.Variable(0, name='learn_rate-input')
+                self.lr = tf.Variable(learning_rate, name='learn_rate-input')
 
                 with tf.name_scope('loss'):
                     target_q_value = tf.reduce_sum(tf.multiply(self.q_values, self.a), reduction_indices=1)
