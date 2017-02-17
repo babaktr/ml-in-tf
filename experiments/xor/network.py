@@ -48,7 +48,7 @@ class NeuralNetwork(object):
         # Objective function 
         # E = - 1/2 (y - y_)^2
         with tf.name_scope('loss') as scope:
-            self.obj_function = tf.multiply(0.5, tf.reduce_sum(tf.sub(self.y, self.y_) * tf.sub(self.y, self.y_)))
+            self.obj_function = tf.multiply(0.5, tf.reduce_sum(tf.subtract(self.y, self.y_) * tf.subtract(self.y, self.y_)))
 
         # Set optimizer
         with tf.name_scope('optimizer') as scope:
