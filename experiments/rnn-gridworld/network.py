@@ -43,7 +43,7 @@ class RecurrentNeuralNetwork(object):
 
             # Objective function 
             with tf.name_scope('loss') as scope:
-                self.obj_function = tf.sqrt(tf.reduce_mean(tf.square(tf.sub(self.y_, self.y))))
+                self.obj_function = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.y_, self.y))))
 
             with tf.name_scope('optimizer') as scope:
                 if optimizer.lower() == 'adam':
