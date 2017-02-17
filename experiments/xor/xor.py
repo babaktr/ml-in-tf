@@ -14,7 +14,7 @@ flags.DEFINE_integer('hidden_n', 2, 'Number of nodes to use in the two hidden la
 flags.DEFINE_float('learning_rate', 0.1, 'Learning rate of the optimizer.')
 flags.DEFINE_integer('status_update', 1000, 'How often to print an status update.')
 flags.DEFINE_integer('random_seed', 123, 'Sets the random seed.')
-flags.DEFINE_string('optimizer', 'gradent_descent', 'Specifices optimizer to use [adam, rmsprop]. Defaults to gradient descent')
+flags.DEFINE_string('optimizer', 'gradient_descent', 'Specifices optimizer to use [adam, rmsprop]. Defaults to gradient descent')
 flags.DEFINE_boolean('run_test', True, 'If the final model should be tested.')
 
 settings = flags.FLAGS

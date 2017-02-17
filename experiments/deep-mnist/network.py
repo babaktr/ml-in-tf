@@ -101,7 +101,7 @@ class ConvolutionalNeuralNetwork(object):
 
             # Objective/Error function - Cross Entropy
             with tf.name_scope('loss') as scope:
-                self.obj_function = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(self.y, self.y_))
+                self.obj_function = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=self.y, labels=self.y_))
 
             with tf.name_scope('train') as scope:
                 if optimizer.lower() == 'adam':
