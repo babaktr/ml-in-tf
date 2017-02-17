@@ -16,7 +16,7 @@ flags.DEFINE_integer('minibatches', 20000, 'Number of minibatches to run the tra
 flags.DEFINE_integer('minibatch_size', 50, 'Number of samples in each minibatch.')
 flags.DEFINE_float('learning_rate', 0.001, 'Learning rate of the optimizer.')
 flags.DEFINE_integer('status_update', 100, 'How often to print an status update.')
-flags.DEFINE_string('optimizer', 'gradent_descent', 'If another optimizer should be used [adam, rmsprop]. Defaults to gradient descent')
+flags.DEFINE_string('optimizer', 'gradient_descent', 'If another optimizer should be used [adam, rmsprop]. Defaults to gradient descent')
 flags.DEFINE_integer('random_seed', 123, 'Sets the random seed.')
 flags.DEFINE_boolean('run_test', True, 'If the final model should be tested')
 flags.DEFINE_boolean('use_gpu', False, 'If it should run the TensorFlow operations on the GPU rather than the CPU.')
