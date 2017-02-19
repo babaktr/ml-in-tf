@@ -21,6 +21,8 @@ flags = tf.app.flags
 flags.DEFINE_float('gamma', 0.99, 'Sets the discount in Q-Learning (gamma).')
 flags.DEFINE_float('initial_epsilon', 1.0, 'Initial epsilon value that epsilon will be annealed from.')
 flags.DEFINE_float('final_epsilon', 0.1, 'Final epsilon value that epsilon will be annealed to.')
+flags.DEFINE_float('epsilon_anneal_steps', 1000000, 'Final epsilon value that epsilon will be annealed to.')
+
 
 # Network settings
 flags.DEFINE_integer('batch_size', 32, 'Size of each training batch.')
@@ -128,11 +130,11 @@ def init_networks():
 
     return online, target
 
-def anneal_learning_rate(initial_rate, final_rate, current_step, max_step):
-    return initial_rate - current_step * ((initial_rate - final_rate) / float(max_step))
+def anneal_learning_rate(initial_rate, final_rate, current_step, anneal_steps):
+    return initial_rate - current_step * ((initial_rate - final_rate) / float(anneal_steps))
 
-def anneal_epsilon(initial_epsilon, final_epsilon, current_step, max_step):
-    return initial_epsilon - current_step * ((initial_epsilon - final_epsilon) / float(max_step))
+def anneal_epsilon(initial_epsilon, final_epsilon, current_step, anneal_steps):
+    return initial_epsilon - current_step * ((initial_epsilon - final_epsilon) / float(anneal_steps))
 
 def select_action(q_values, epsilon, action_size):
     if np.random.random() < epsilon: 
@@ -167,7 +169,7 @@ def train_agent(total_step, stats):
             settings.initial_epsilon, 
             settings.final_epsilon, 
             total_step,
-            settings.max_step)
+            settings.epsilon_anneal_steps)
 
         state = game_state.reset()
 

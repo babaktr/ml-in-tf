@@ -140,7 +140,7 @@ class DeepQNetwork(object):
             predicted_output = self.sess.run(self.q_values, feed_dict=feed_dict)
             return predicted_output
 
-    def sync_variables_from(self, source_network):
+    def sync_parameters_from(self, source_network):
         with tf.device(self.device):
             source_variables = source_network.get_variables()
             own_variables = self.get_variables()
