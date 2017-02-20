@@ -3,3 +3,4 @@
 logs/
 MNIST_data
 data/
+checkpoints
