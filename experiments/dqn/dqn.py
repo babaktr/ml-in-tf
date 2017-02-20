@@ -31,6 +31,8 @@ flags.DEFINE_integer('target_update', 10000, '')
 flags.DEFINE_float('gradient_clip_norm', 40., 'Size of each training batch.')
 flags.DEFINE_integer('experience_replay_size', 1000000, '')
 
+flags.DEFINE_integer('no_op_max', 30, 'h')
+
 
 
 flags.DEFINE_integer('evaluation_frequency', 100000, '')
@@ -173,7 +175,7 @@ def train_agent(total_step, stats):
             total_step,
             settings.epsilon_anneal_steps)
 
-        state = game_state.reset()
+        state, reward, terminal = game_state.reset()
 
         while not terminal and not stop_requested: 
             step += 1
@@ -258,7 +260,8 @@ total_step = 0
 # Set up GridWorld
 game_state = GameState(settings.random_seed,
     settings.game,
-    settings.display)
+    settings.display,
+    settings.no_op_max)
 
 np.random.seed(settings.random_seed)
 random.seed(settings.random_seed)
@@ -269,22 +272,22 @@ if settings.use_gpu:
     device = '/gpu:0'
 else:
     device = '/cpu:0'
+with tf.device(self.device):
+    sess = tf.Session(
+        config=tf.ConfigProto(
+           log_device_placement=False, 
+           allow_soft_placement=True))
 
-sess = tf.Session(
-    config=tf.ConfigProto(
-       log_device_placement=False, 
-       allow_soft_placement=True))
+    online_network, target_network = init_networks()
 
-online_network, target_network = init_networks()
+    summary_dir = './logs/{}/'.format(settings.game)
+    summary_writer = tf.summary.FileWriter(summary_dir, sess.graph)
+    stats = Stats(sess, summary_writer, 50)
 
-summary_dir = './logs/{}/'.format(settings.game)
-summary_writer = tf.summary.FileWriter(summary_dir, sess.graph)
-stats = Stats(sess, summary_writer, 50)
+    wall_t, total_step, saver, checkpoint_dir = init_checkpoint()
 
-wall_t, total_step, saver, checkpoint_dir = init_checkpoint()
-
-init = tf.global_variables_initializer()
-sess.run(init)
+    init = tf.global_variables_initializer()
+    sess.run(init)
 
 start_time = time.time() - wall_t
 

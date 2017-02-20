@@ -1,4 +1,5 @@
 import random
+import numpy
 
 class ExperienceReplayMemory(object):
     def __init__(self, experience_replay_size):
@@ -6,44 +7,23 @@ class ExperienceReplayMemory(object):
         self.full_message = False
         self.reset()
 
-    def save(self, s_t, a_t, r_t, s_t1, terminal):
-        self.s_t_memory.append(s_t)
-        self.a_t_memory.append(a_t)
-        self.r_t_memory.append(r_t)
-        self.s_t1_memory.append(s_t1)
-        self.terminal_memory.append(terminal)
-
-        if len(self.s_t_memory) > self.experience_replay_size:
-            if not self.full_message:
-                print('Memory full! Started erasing old experiences.')
-                self.full_message = True
-            self.s_t_memory.pop(0)
-            self.a_t_memory.pop(0)
-            self.r_t_memory.pop(0)
-            self.s_t1_memory.pop(0)
-            self.terminal_memory.pop(0)
-
     def reset(self):
-        self.s_t_memory = []
-        self.a_t_memory = []
-        self.r_t_memory = []
-        self.s_t1_memory = []
-        self.terminal_memory = []
+        self.s_t_memory = np.empty((self.experience_replay_size, 84, 84, 4), dtype=np.float16)
+        self.a_t_memory = np.empty((self.experience_replay_size, 1, 3), dtype=np.float16)
+        self.r_t_memory = np.empty(self.experience_replay_size)
+        self.s_t1_memory = np.empty((self.experience_replay_size, 84, 84, 4), dtype=np.float16)
+        self.terminal_memory = np.empty(self.experience_replay_size)
+        self.current_size = 0
+
+    def save(self, s_t, a_t, r_t, s_t1, terminal):
+        self.s_t_memory[self.current_size] = s_t
+        self.a_t_memory[self.current_size] = a_t
+        self.r_t_memory[self.current_size] = r_t
+        self.s_t1_memory.[self.current_size] = s_t1
+        self.terminal_memory[self.current_size] = terminal
+
+        self.current_size = (self.current_size + 1) % self.experience_replay_size
 
     def sample(self, batch_size):
-        indices = random.sample(range(len(self.s_t_memory)), min(batch_size, len(self.s_t_memory)))
-
-        sample_s_t = []
-        sample_a_t = []
-        sample_r_t = []
-        sample_s_t1 = []
-        sample_terminal = []
-
-        for index in indices:
-            sample_s_t.append(self.s_t_memory[index])
-            sample_a_t.append(self.a_t_memory[index])
-            sample_r_t.append(self.r_t_memory[index])
-            sample_s_t1.append(self.s_t1_memory[index])
-            sample_terminal.append(self.terminal_memory[index])
-
-        return sample_s_t, sample_a_t, sample_r_t, sample_s_t1, sample_terminal
+        indices = [np.random.randint(0, self.current_size for n in range(min(batch_size, self.current_size)))]
+        return self.s_t_memory[indices], self.a_t_memory[indices], self.r_t_memory[indices], self.s_t1_memory[indices], self.terminal_memory[indices]

@@ -6,12 +6,13 @@ import time
 import gym
 
 class GameState(object):
-    def __init__(self, random_seed, game, display):
+    def __init__(self, random_seed, game, display, no_op_max):
         np.random.seed(random_seed)
         # Load game environment
         self.game = gym.make(game)
         self.game.seed(random_seed)
         self.display = display
+        self.no_op_max = no_op_max
 
         #self.frame = Queue(maxsize=4)
         
@@ -45,10 +46,19 @@ class GameState(object):
         self.accumulated_reward = 0
         x_t_raw = self.game.reset()
     
+        accumulated_reward = 0
+
+        for n in range(np.random.randint(0, self.no_op_max)):
+            random_action = np.random.randint(0, self.action_size):
+            x_t1_raw, reward, terminal, _ = self.game.step(random_action+self.action_shift)
+            accumulated_reward += reward
+            if terminal:
+                break
+        
         self.x_t = self.process_frame(x_t_raw)
         self.s_t = np.stack((self.x_t, self.x_t, self.x_t, self.x_t), axis=2)
 
-        return self.s_t
+        return self.s_t, accumulated_reward, terminal
 
     def step(self, action):
         if self.display:

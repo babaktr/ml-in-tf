@@ -54,42 +54,44 @@ class DeepQNetwork(object):
                 # Target Q-value batch with shape [?, 1]
                 self.y = tf.placeholder(tf.float32, shape=[None, 1], name='target-q_value')
 
-        # Convolutional layer 1 weights and bias with stride=4
-        # Produces 16 20x20 outputs
         with tf.name_scope('conv-1') as scope:
-            self.W_conv1 = self.conv_weight_variable([8, 8, 4, 16], name='w_conv1')
+            self.W_conv1 = self.conv_weight_variable([8, 8, 4, 32], name='w_conv1')
             self.b_conv1 = self.bias_variable([16], name='b_conv1')
             stride_1 = 4
 
-            # Convolutional layer 1 output
             with tf.name_scope('conv1-out') as scope:
                 self.h_conv1 = tf.nn.relu(tf.add(self.conv2d(self.s, self.W_conv1, stride_1), self.b_conv1))
 
-        # Convolutional laer 2 weights and biases with stride=2
-        # Produces 32 9x9 outputs
         with tf.name_scope('conv-2') as scope:
-            self.W_conv2 = self.conv_weight_variable([4, 4, 16, 32], name='w_conv2')
+            self.W_conv2 = self.conv_weight_variable([4, 4, 32, 64], name='w_conv2')
             self.b_conv2 = self.bias_variable([32], name='b_conv2')
             stride_2 = 2
 
-            # Convolutional layer 2 output 
             with tf.name_scope('conv2-out') as scope:
                 self.h_conv2 = tf.nn.relu(tf.add(self.conv2d(self.h_conv1, self.W_conv2, stride_2), self.b_conv2))
 
-        # 256 Fully connected units with weights and biases
-        # Weights total 9x9x32 (2592) from the output of the 2nd convolutional layer
+        with tf.name_scope('conv-3') as scope:
+            self.W_conv3 = self.conv_weight_variable([3, 3, 64, 64], name='w_conv3')
+            self.b_conv3 = self.bias_variable([32], name='b_conv3')
+            stride_3 = 1
+
+            with tf.name_scope('conv3-out') as scope:
+                self.h_conv3 = tf.nn.relu(tf.add(self.conv2d(self.h_conv2, self.W_conv3, stride_3), self.b_conv3))
+
         with tf.name_scope('fully_connected') as scope:
-            self.W_fc1 = self.weight_variable([2592, 256], name='w_fc')
-            self.b_fc1 = self.bias_variable([256], name='b_fc')
+            h_conv3_shape = self.h_conv3.get_shape().as_list()
+            h_conv3_weights = h_conv3_shape[0] * h_conv3_shape[1] * h_conv3_shape[3]
+            self.W_fc1 = self.weight_variable([h_conv3_weights, 512], name='w_fc')
+            self.b_fc1 = self.bias_variable([512], name='b_fc')
 
             # Fully connected layer output
             with tf.name_scope('fully-connected-out') as scope:
-                h_conv2_flat = tf.reshape(self.h_conv2, [tf.negative(1), 2592])
-                self.h_fc1 = tf.nn.relu(tf.add(tf.matmul(h_conv2_flat, self.W_fc1), self.b_fc1))
+                h_conv3_flat = tf.reshape(self.h_conv2, [tf.negative(1), h_conv3_weights])
+                self.h_fc1 = tf.nn.relu(tf.add(tf.matmul(h_conv3_flat, self.W_fc1), self.b_fc1))
 
         # Output layer weights and biases
         with tf.name_scope('output') as scope:
-            self.W_fc2 = self.weight_variable([256, self.action_size], name='w_out')
+            self.W_fc2 = self.weight_variable([512, self.action_size], name='w_out')
             self.b_fc2 = self.bias_variable([self.action_size], name='b_out')
 
             # Output
@@ -98,12 +100,13 @@ class DeepQNetwork(object):
 
         if trainable:
             with tf.name_scope('optimizer') as scope:
-                self.lr = tf.placeholder(tf.float32, name='learning_rate')
-
                 if optimizer == 'rmsprop':
-                    self.optimizer = tf.train.RMSPropOptimizer(learning_rate=self.lr)
+                    self.optimizer = tf.train.RMSPropOptimizer(
+                        learning_rate=0.00025,
+                        momentum=0.95,
+                        epsilon=0.01)
                 else:
-                    self.optimizer = tf.train.GradientDescent(learning_rate=self.lr)
+                    self.optimizer = tf.train.GradientDescent(learning_rate=0.00025)
 
                 with tf.name_scope('loss') as scope:
                     target_q_value = tf.reduce_sum(tf.multiply(self.q_values, self.a), reduction_indices=1)
@@ -113,7 +116,7 @@ class DeepQNetwork(object):
                 with tf.name_scope('gradient_clipping') as scope:
                     self.computed_gradients = self.optimizer.compute_gradients(self.loss)    
                     #tf.global_variables()                
-                    self.clipped_gradients = [(tf.clip_by_average_norm(g, gradient_clip_norm), v) for g,v in self.computed_gradients]
+                    self.clipped_gradients = [(tf.clip_by_value(g, -1, 1), v) for g,v in self.computed_gradients]
 
                 self.train_op = self.optimizer.apply_gradients(self.clipped_gradients)
 
