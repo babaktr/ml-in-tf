@@ -5,13 +5,13 @@ import numpy as np
 Network structure from "Playing Atari with Deep Reinforcement Learning" by Mnih et al., 2013 
 '''
 class DeepQNetwork(object):
-    def __init__(self, sess, device, random_seed, action_size, trainable=False, optimizer='rmsprop', gradient_clip_norm=40.):
+    def __init__(self, sess, device, name, random_seed, action_size, trainable=False, optimizer='rmsprop', gradient_clip_norm=40.):
         self.sess = sess
         self.device = device
         self.action_size = action_size
         tf.set_random_seed(random_seed)
-
-        self.build_network(trainable, optimizer, gradient_clip_norm)
+        with tf.name_scope(name) as scope:
+            self.build_network(trainable, optimizer, gradient_clip_norm)
 
     '''
     Set up convolutional weight variable.
@@ -42,17 +42,17 @@ class DeepQNetwork(object):
 
 
     def build_network(self, trainable, optimizer, gradient_clip_norm):
-        self.lr = tf.placeholder(tf.float32, name='learning_rate', shape=[])
 
         with tf.name_scope('input') as scope:
-            # Action input batch with shape [?, action_size]
-            self.a = tf.placeholder(tf.float32, [None, self.action_size], name='action-input')
-
             # State input batch with shape [?, 84, 84, 4]
             self.s = tf.placeholder(tf.float32, shape=[None, 84, 84, 4], name='s-input')
 
-            # Target Q-value batch with shape [?, 1]
-            self.y = tf.placeholder(tf.float32, shape=[None, 1], name='target-q_value')
+            if trainable:
+                # Action input batch with shape [?, action_size]
+                self.a = tf.placeholder(tf.float32, [None, self.action_size], name='action-input')
+
+                # Target Q-value batch with shape [?, 1]
+                self.y = tf.placeholder(tf.float32, shape=[None, 1], name='target-q_value')
 
         # Convolutional layer 1 weights and bias with stride=4
         # Produces 16 20x20 outputs
@@ -98,6 +98,8 @@ class DeepQNetwork(object):
 
         if trainable:
             with tf.name_scope('optimizer') as scope:
+                self.lr = tf.placeholder(tf.float32, name='learning_rate')
+
                 if optimizer == 'rmsprop':
                     self.optimizer = tf.train.RMSPropOptimizer(learning_rate=self.lr)
                 else:

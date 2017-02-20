@@ -115,7 +115,8 @@ def push_stats_updates(stats, loss_arr, learning_rate, q_max_arr, epsilon_arr, a
 def init_networks():
     online = DeepQNetwork(
         sess,
-        device, 
+        device,
+        'online_network',
         settings.random_seed, 
         game_state.action_size, 
         trainable=True,
@@ -124,7 +125,8 @@ def init_networks():
 
     target = DeepQNetwork(
         sess,
-        device, 
+        device,
+        'target_network'
         settings.random_seed, 
         game_state.action_size)
 
