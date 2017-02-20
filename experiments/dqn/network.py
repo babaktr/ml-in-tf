@@ -56,7 +56,7 @@ class DeepQNetwork(object):
 
         with tf.name_scope('conv-1') as scope:
             self.W_conv1 = self.conv_weight_variable([8, 8, 4, 32], name='w_conv1')
-            self.b_conv1 = self.bias_variable([16], name='b_conv1')
+            self.b_conv1 = self.bias_variable([32], name='b_conv1')
             stride_1 = 4
 
             with tf.name_scope('conv1-out') as scope:
@@ -64,7 +64,7 @@ class DeepQNetwork(object):
 
         with tf.name_scope('conv-2') as scope:
             self.W_conv2 = self.conv_weight_variable([4, 4, 32, 64], name='w_conv2')
-            self.b_conv2 = self.bias_variable([32], name='b_conv2')
+            self.b_conv2 = self.bias_variable([64], name='b_conv2')
             stride_2 = 2
 
             with tf.name_scope('conv2-out') as scope:
@@ -72,7 +72,7 @@ class DeepQNetwork(object):
 
         with tf.name_scope('conv-3') as scope:
             self.W_conv3 = self.conv_weight_variable([3, 3, 64, 64], name='w_conv3')
-            self.b_conv3 = self.bias_variable([32], name='b_conv3')
+            self.b_conv3 = self.bias_variable([64], name='b_conv3')
             stride_3 = 1
 
             with tf.name_scope('conv3-out') as scope:
@@ -80,13 +80,13 @@ class DeepQNetwork(object):
 
         with tf.name_scope('fully_connected') as scope:
             h_conv3_shape = self.h_conv3.get_shape().as_list()
-            h_conv3_weights = h_conv3_shape[0] * h_conv3_shape[1] * h_conv3_shape[3]
+            h_conv3_weights = h_conv3_shape[1] * h_conv3_shape[2] * h_conv3_shape[3]
             self.W_fc1 = self.weight_variable([h_conv3_weights, 512], name='w_fc')
             self.b_fc1 = self.bias_variable([512], name='b_fc')
 
             # Fully connected layer output
             with tf.name_scope('fully-connected-out') as scope:
-                h_conv3_flat = tf.reshape(self.h_conv2, [tf.negative(1), h_conv3_weights])
+                h_conv3_flat = tf.reshape(self.h_conv3, [tf.negative(1), h_conv3_weights])
                 self.h_fc1 = tf.nn.relu(tf.add(tf.matmul(h_conv3_flat, self.W_fc1), self.b_fc1))
 
         # Output layer weights and biases
@@ -114,7 +114,7 @@ class DeepQNetwork(object):
                     #print 'loss: {}'.format(self.loss)
 
                 with tf.name_scope('gradient_clipping') as scope:
-                    self.computed_gradients = self.optimizer.compute_gradients(self.loss)    
+                    self.computed_gradients = self.optimizer.compute_gradients(self.loss)   
                     #tf.global_variables()                
                     self.clipped_gradients = [(tf.clip_by_value(g, -1, 1), v) for g,v in self.computed_gradients]
 
@@ -123,6 +123,7 @@ class DeepQNetwork(object):
     def get_variables(self):
         return [self.W_conv1, self.b_conv1,
                 self.W_conv2, self.b_conv2,
+                self.W_conv3, self.b_conv3,
                 self.W_fc1, self.b_fc1,
                 self.W_fc2, self.b_fc2]
 
@@ -132,9 +133,8 @@ class DeepQNetwork(object):
             feed_dict = {
                 self.s: np.vstack(s_input),
                 self.a: np.vstack(a_input),
-                self.y: np.vstack(y_input),
-                self.lr: learning_rate
-            }
+                self.y: np.vstack(y_input)
+                }
             _, loss_value = self.sess.run([self.train_op, self.loss], feed_dict=feed_dict)
             return loss_value
 

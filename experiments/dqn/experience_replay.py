@@ -1,5 +1,5 @@
 import random
-import numpy
+import numpy as np
 
 class ExperienceReplayMemory(object):
     def __init__(self, experience_replay_size):
@@ -19,11 +19,11 @@ class ExperienceReplayMemory(object):
         self.s_t_memory[self.current_size] = s_t
         self.a_t_memory[self.current_size] = a_t
         self.r_t_memory[self.current_size] = r_t
-        self.s_t1_memory.[self.current_size] = s_t1
+        self.s_t1_memory[self.current_size] = s_t1
         self.terminal_memory[self.current_size] = terminal
 
         self.current_size = (self.current_size + 1) % self.experience_replay_size
 
     def sample(self, batch_size):
-        indices = [np.random.randint(0, self.current_size for n in range(min(batch_size, self.current_size)))]
+        indices = [np.random.randint(0, self.current_size) for n in range(min(batch_size, self.current_size))]
         return self.s_t_memory[indices], self.a_t_memory[indices], self.r_t_memory[indices], self.s_t1_memory[indices], self.terminal_memory[indices]

@@ -128,7 +128,7 @@ def init_networks():
     target = DeepQNetwork(
         sess,
         device,
-        'target_network'
+        'target_network',
         settings.random_seed, 
         game_state.action_size)
 
@@ -202,6 +202,9 @@ def train_agent(total_step, stats):
             acc_arr.append(0)
             action_arr.append(action)
 
+            if terminal:
+                new_state = None
+
             memory.save(state, onehot_action, reward, new_state, terminal)
 
             sample_s_t, sample_a_t, sample_r_t, sample_s_t1, sample_terminal = memory.sample(settings.batch_size)
@@ -223,13 +226,7 @@ def train_agent(total_step, stats):
                 state_batch.append([s_t])
                 action_batch.append(a_t)
                 target_batch.append([target])
-       
-            # Run training
-            learning_rate = anneal_learning_rate(settings.initial_learning_rate, 
-                settings.final_learning_rate, 
-                total_step, 
-                settings.max_step)
-
+                
             loss = online_network.train(state_batch, action_batch, target_batch, learning_rate)
             state_batch, action_batch, target_batch = [], [], []
             
@@ -272,7 +269,8 @@ if settings.use_gpu:
     device = '/gpu:0'
 else:
     device = '/cpu:0'
-with tf.device(self.device):
+
+with tf.device(device):
     sess = tf.Session(
         config=tf.ConfigProto(
            log_device_placement=False, 

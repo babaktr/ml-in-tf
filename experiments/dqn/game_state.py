@@ -49,7 +49,7 @@ class GameState(object):
         accumulated_reward = 0
 
         for n in range(np.random.randint(0, self.no_op_max)):
-            random_action = np.random.randint(0, self.action_size):
+            random_action = np.random.randint(0, self.action_size)
             x_t1_raw, reward, terminal, _ = self.game.step(random_action+self.action_shift)
             accumulated_reward += reward
             if terminal:
