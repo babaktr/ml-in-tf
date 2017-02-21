@@ -10,9 +10,12 @@ import gym
 import time
 import os
 
+from multiprocessing import Queue
+
 from game_state import GameState
 
 from network import DeepQNetwork
+from agent import Agent
 from experience_replay import ExperienceReplayMemory
 
 flags = tf.app.flags
@@ -32,7 +35,6 @@ flags.DEFINE_float('gradient_clip_norm', 40., 'Size of each training batch.')
 flags.DEFINE_integer('experience_replay_size', 1000000, '')
 
 flags.DEFINE_integer('no_op_max', 30, 'h')
-
 
 
 flags.DEFINE_integer('evaluation_frequency', 100000, '')
@@ -114,139 +116,13 @@ def push_stats_updates(stats, loss_arr, learning_rate, q_max_arr, epsilon_arr, a
                 'step': g_step
                 }) 
 
-def init_networks():
-    online = DeepQNetwork(
-        sess,
-        device,
-        'online_network',
-        settings.random_seed, 
-        game_state.action_size, 
+def init_networks(sess, device, random_seed, action_size, gradient_clip_norm):
+    online = DeepQNetwork(sess, device, 'online_network', random_seed, action_size, 
         trainable=True,
-        optimizer=settings.optimizer,
-        gradient_clip_norm=settings.gradient_clip_norm)
+        gradient_clip_norm=gradient_clip_norm)
+    target = DeepQNetwork(sess, device, 'target_network', random_seed, action_size)
 
-    target = DeepQNetwork(
-        sess,
-        device,
-        'target_network',
-        settings.random_seed, 
-        game_state.action_size)
-
-    return online, target
-
-def anneal_learning_rate(initial_rate, final_rate, current_step, anneal_steps):
-    return initial_rate - current_step * ((initial_rate - final_rate) / float(anneal_steps))
-
-def anneal_epsilon(initial_epsilon, final_epsilon, current_step, anneal_steps):
-    return initial_epsilon - current_step * ((initial_epsilon - final_epsilon) / float(anneal_steps))
-
-def select_action(q_values, epsilon, action_size):
-    if np.random.random() < epsilon: 
-        return np.random.randint(0, action_size)
-    else: 
-        return np.argmax(q_values)
-
-def train_agent(total_step, stats):
-    episode = 0
-    epsilon = settings.initial_epsilon
-
-    while settings.max_step > total_step and not stop_requested:
-
-        # Reset or increment values
-        terminal = False
-        episode += 1
-        step = 0
-        q_max_arr = []
-        reward_arr = []
-        epsilon_arr = []
-        action_arr = []
-        loss_arr = []
-        acc_arr = []
-
-        learning_rate = anneal_learning_rate(
-            settings.initial_learning_rate, 
-            settings.final_learning_rate, 
-            total_step, 
-            settings.max_step)
-
-        epsilon = anneal_epsilon(
-            settings.initial_epsilon, 
-            settings.final_epsilon, 
-            total_step,
-            settings.epsilon_anneal_steps)
-
-        state, reward, terminal = game_state.reset()
-
-        while not terminal and not stop_requested: 
-            step += 1
-            total_step += 1
-            #print(total_step)
-            # Get the Q-values of the current state
-            q_values = online_network.predict([state])
-            #print(q_values)
-            # Save max(Q(s,a)) for stats
-            q_max = np.max(q_values)
-
-            action = select_action(q_values, epsilon, game_state.action_size)
-
-            # Take action and observe new state and reward, check if state is terminal
-            new_state, reward, terminal = game_state.step(action)
-
-            onehot_action = np.zeros(game_state.action_size)
-            onehot_action[action] = 1.0
-
-            # Save values for stats
-            epsilon_arr.append(epsilon)
-            reward_arr.append(reward)
-            q_max_arr.append(q_max)
-            acc_arr.append(0)
-            action_arr.append(action)
-
-            if terminal:
-                new_state = None
-
-            memory.save(state, onehot_action, reward, new_state, terminal)
-
-            sample_s_t, sample_a_t, sample_r_t, sample_s_t1, sample_terminal = memory.sample(settings.batch_size)
-            state_batch, action_batch, target_batch = [], [], []
-
-            for n in range(len(sample_s_t)):
-                s_t = sample_s_t[n]
-                a_t = sample_a_t[n]
-                r_t = sample_r_t[n]
-                s_t1 = sample_s_t1[n]
-                term = sample_terminal[n]
-
-                if not term: 
-                    q_t1 = target_network.predict([s_t1])
-                    target = r_t + (settings.gamma * np.max(q_t1))
-                else:
-                    target = r_t
-
-                state_batch.append([s_t])
-                action_batch.append(a_t)
-                target_batch.append([target])
-                
-            loss = online_network.train(state_batch, action_batch, target_batch, learning_rate)
-            state_batch, action_batch, target_batch = [], [], []
-            
-            loss_arr.append(loss)
-
-            if total_step % settings.target_update == 0:
-                sess.run(target_network.sync_parameters_from(online_network))
-
-            if terminal:
-                # Episode ended, update log and print stats
-                print('Episode: {}, Total steps: {}, Steps: {}, Reward: {}, Qmax: {}, Loss: {}, lr: {}, Epsilon: {}'.format(episode, total_step,
-                        step, np.sum(reward_arr), format(np.average(q_max_arr), '.2f'),  format(np.average(loss_arr), '.4f'), 
-                        format(learning_rate, '.6f'), format(np.average(epsilon_arr), '.3f')))
-                push_stats_updates(stats, loss_arr, learning_rate, q_max_arr, epsilon_arr, action_arr, reward_arr, step, total_step)
-
-
-            else:
-                # Set the current state to the new state
-                state = new_state
-    return total_step
+    return online_network, target_network
 
 
 signal.signal(signal.SIGINT, signal_handler)
@@ -254,17 +130,26 @@ stop_requested = False
 wall_t = 0
 total_step = 0
 
-# Set up GridWorld
-game_state = GameState(settings.random_seed,
-    settings.game,
-    settings.display,
-    settings.no_op_max)
-
 np.random.seed(settings.random_seed)
 random.seed(settings.random_seed)
 
 memory = ExperienceReplayMemory(settings.experience_replay_size)
 
+prediction_queue = Queue(maxsize=settings.max_queue_size)
+training_queue = Queue(maxsize=settings.max_queue_size)
+
+epsilon_settings = {'initial_epsilon': settings.initial_epsilon, 
+    'final_epsilon': settings.final_epsilon, 
+    'anneal_steps': settings.epsilon_anneal_steps}
+    
+agent = Agent(prediction_queue, training_queue, log_queue, experience_replay, epsilon_settings,
+    random_seed=settings.random_seed, 
+    game=settings.game, 
+    display=settings.display, 
+    no_op_max=settings.no_op_max, 
+    play_mode=settings.play_mode,
+    batch_size=settings.batch_size)
+    
 if settings.use_gpu:
     device = '/gpu:0'
 else:
@@ -276,7 +161,7 @@ with tf.device(device):
            log_device_placement=False, 
            allow_soft_placement=True))
 
-    online_network, target_network = init_networks()
+    online_network, target_network = init_networks(sess, device, agent.game_state.action_size, settings.gradient_clip_norm)
 
     summary_dir = './logs/{}/'.format(settings.game)
     summary_writer = tf.summary.FileWriter(summary_dir, sess.graph)
@@ -289,7 +174,13 @@ with tf.device(device):
 
 start_time = time.time() - wall_t
 
-print('start training')
-total_step = train_agent(total_step, stats)
+print('Start training')
+agent.start()
 
-save_checkpoint(sess, saver, checkpoint_dir, wall_t, total_step, start_time)
+while stats.total_steps.value < settings.max_step:
+            # Saving is async - even if we start saving at a given episode, we may save the model at a later episode
+            if stop_requested:
+                save_checkpoint(sess, saver, checkpoint_dir, wall_t, stats.total_steps.value, start_time)
+
+            time.sleep(0.1)
+

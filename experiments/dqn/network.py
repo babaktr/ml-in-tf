@@ -1,11 +1,8 @@
 import tensorflow as tf
 import numpy as np
 
-'''
-Network structure from "Playing Atari with Deep Reinforcement Learning" by Mnih et al., 2013 
-'''
 class DeepQNetwork(object):
-    def __init__(self, sess, device, name, random_seed, action_size, trainable=False, optimizer='rmsprop', gradient_clip_norm=40.):
+    def __init__(self, sess, device, name, random_seed, action_size, trainable=False, gradient_clip_norm=40.):
         self.sess = sess
         self.device = device
         self.action_size = action_size
@@ -100,13 +97,10 @@ class DeepQNetwork(object):
 
         if trainable:
             with tf.name_scope('optimizer') as scope:
-                if optimizer == 'rmsprop':
-                    self.optimizer = tf.train.RMSPropOptimizer(
-                        learning_rate=0.00025,
-                        momentum=0.95,
-                        epsilon=0.01)
-                else:
-                    self.optimizer = tf.train.GradientDescent(learning_rate=0.00025)
+                self.optimizer = tf.train.RMSPropOptimizer(
+                    learning_rate=0.00025,
+                    momentum=0.95,
+                    epsilon=0.01)
 
                 with tf.name_scope('loss') as scope:
                     target_q_value = tf.reduce_sum(tf.multiply(self.q_values, self.a), reduction_indices=1)
