@@ -8,7 +8,7 @@ class DeepQNetwork(object):
         self.action_size = action_size
         tf.set_random_seed(random_seed)
         with tf.name_scope(name) as scope:
-            self.build_network(trainable, optimizer, gradient_clip_norm)
+            self.build_network(trainable, gradient_clip_norm)
 
     '''
     Set up convolutional weight variable.
@@ -38,7 +38,7 @@ class DeepQNetwork(object):
         return tf.nn.conv2d(x, W, strides=[1, stride, stride, 1], padding='VALID')
 
 
-    def build_network(self, trainable, optimizer, gradient_clip_norm):
+    def build_network(self, trainable, gradient_clip_norm):
 
         with tf.name_scope('input') as scope:
             # State input batch with shape [?, 84, 84, 4]
@@ -122,7 +122,7 @@ class DeepQNetwork(object):
                 self.W_fc2, self.b_fc2]
 
 
-    def train(self, s_input, a_input, y_input, learning_rate):
+    def train(self, s_input, a_input, y_input):
         with tf.device(self.device):
             feed_dict = {
                 self.s: np.vstack(s_input),

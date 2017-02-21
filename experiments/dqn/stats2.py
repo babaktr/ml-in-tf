@@ -10,14 +10,14 @@ from multiprocessing import Process, Queue, Value
 import numpy as np
 import time
 
-from Config import Config
-
 
 class Stats(Process):
     def __init__(self, total_steps):
-        self.episode_log_q = Queue(maxsize=100)
+        super(Stats, self).__init__()
+        self.log_queue = Queue(maxsize=100)
         self.total_steps = Value('i', 0)
         self.training_count = Value('i', 0)
+        self.episode_count = Value('i', 0)
         self.total_frame_count = 0
 
     def FPS(self):
@@ -25,3 +25,25 @@ class Stats(Process):
 
     def TPS(self):
         return np.ceil(self.training_count.value / (time.time() - self.start_time))
+
+    def run(self):
+        with open('results.txt', 'a') as results_logger:
+            self.start_time = time.time()
+            first_time = datetime.now()
+            while True:
+                episode_time, reward, length = self.episode_log_queue.get()
+                results_logger.write('%s, %d, %d\n' % (episode_time.strftime("%Y-%m-%d %H:%M:%S"), reward, length))
+                results_logger.flush()
+
+                self.total_steps += steps
+                self.episode_count.value += 1
+
+                print(
+                    '[Time: %8d] '
+                    '[Episode: %8d Score: %10.4f] '
+                    '[PPS: %5d TPS: %5d] '
+                    % (int(time.time()-self.start_time),
+                       self.episode_count.value, reward,
+                       self.FPS(), self.TPS()))
+                sys.stdout.flush()
+

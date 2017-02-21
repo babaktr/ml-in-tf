@@ -4,7 +4,7 @@ sys.path.append('../..')
 import numpy as np
 import signal
 import tensorflow as tf
-from stats import Stats
+from stats2 import Stats
 import random
 import gym
 import time
@@ -40,6 +40,12 @@ flags.DEFINE_integer('no_op_max', 30, 'h')
 flags.DEFINE_integer('evaluation_frequency', 100000, '')
 flags.DEFINE_boolean('run_evaluation', True, '')
 
+flags.DEFINE_boolean('play_mode', True, '')
+
+
+flags.DEFINE_integer('max_queue_size', 100, '')
+
+
 
 
 # Training settings
@@ -56,131 +62,169 @@ flags.DEFINE_boolean('display', False, 'Explanation.')
 flags.DEFINE_integer('random_seed', 1, 'Random seed.')
 flags.DEFINE_string('game', 'BreakoutDeterministic-v0', 'Classic Control-game to play.')
 
+args = flags.FLAGS
 
-settings = flags.FLAGS
+class main:
+    def __init__(self, settings):
+        signal.signal(signal.SIGINT, self.signal_handler)
+        self.stop_requested = False
+        wall_t = 0
+        total_step = 0
 
-def signal_handler(signal, frame):
-    global stop_requested
-    print('You pressed Ctrl+C!')
-    stop_requested = True
+        np.random.seed(settings.random_seed)
+        random.seed(settings.random_seed)
+        self.gamma = settings.gamma
 
-def load_checkpoint(sess, saver, checkpoint_path):
-    checkpoint = tf.train.get_checkpoint_state(checkpoint_path)
-    if checkpoint and checkpoint.model_checkpoint_path:
-        saver.restore(sess, checkpoint.model_checkpoint_path)
-        print('Checkpoint loaded:', checkpoint.model_checkpoint_path)
-        tokens = checkpoint.model_checkpoint_path.split("-")
-        # set global step
-        global_step = int(tokens[len(tokens)-1])
-        print('Global step set to: ', global_step)
-        # set wall time
-        wall_t_fname = checkpoint_path + '/' + 'wall_t.' + str(global_step)
-        with open(wall_t_fname, 'r') as f:
-            wall_t = float(f.read())
-    else:
-        print('Could not find old checkpoint')
-        global_step = 0
-        wall_t = 0.0
-    return wall_t, global_step
+        self.experience_replay = ExperienceReplayMemory(settings.experience_replay_size)
+
+        self.prediction_queue = Queue(maxsize=settings.max_queue_size)
+        self.target_prediction_queue = Queue(maxsize=settings.max_queue_size)
+        self.training_queue = Queue(maxsize=settings.max_queue_size)
 
 
-def init_checkpoint():
-    checkpoint_dir = './checkpoints/{}/'.format(settings.game)
-    saver = tf.train.Saver(max_to_keep=1)
-    wall_t, total_step = load_checkpoint(sess, saver, checkpoint_dir)
-    return wall_t, total_step, saver, checkpoint_dir
+        self.stats = Stats(total_step)
 
-def save_checkpoint(sess, saver, checkpoint_dir, wall_t, total_step, start_time):
-    print('Now saving checkpoint. Please wait.')
-    if not os.path.exists('./checkpoints'):
-        os.mkdir('./checkpoints')  
-    if not os.path.exists(checkpoint_dir):
-        os.mkdir(checkpoint_dir)  
+        epsilon_settings = {'initial_epsilon': settings.initial_epsilon, 
+            'final_epsilon': settings.final_epsilon, 
+            'anneal_steps': settings.epsilon_anneal_steps}
 
-    # write wall time
-    wall_t = time.time() - start_time
-    wall_t_fname = checkpoint_dir + '/' + 'wall_t.' + str(total_step)
-    with open(wall_t_fname, 'w') as f:
-        f.write(str(wall_t))
+        self.agent = Agent(self.prediction_queue, self.training_queue, self.stats.log_queue, self.experience_replay, epsilon_settings,
+            random_seed=settings.random_seed, 
+            game=settings.game, 
+            display=settings.display, 
+            no_op_max=settings.no_op_max, 
+            play_mode=settings.play_mode,
+            batch_size=settings.batch_size)
+            
+        if settings.use_gpu:
+            device = '/gpu:0'
+        else:
+            device = '/cpu:0'
 
-    saver.save(sess, checkpoint_dir + '/' 'checkpoint', global_step=total_step)
+        print('device selected')
 
-def push_stats_updates(stats, loss_arr, learning_rate, q_max_arr, epsilon_arr, action_arr, reward_arr, l_step, g_step):
-    stats.update({'loss': np.average(loss_arr), 
-                'learning_rate': learning_rate,
-                'qmax': np.average(q_max_arr),
-                'epsilon': np.average(epsilon_arr),
-                'episode_actions': action_arr,
-                'reward': np.sum(reward_arr),
-                'steps': l_step,
-                'step': g_step
-                }) 
+        with tf.device(device):
+            self.sess = tf.Session(
+                config=tf.ConfigProto(
+                   log_device_placement=False, 
+                   allow_soft_placement=True))
 
-def init_networks(sess, device, random_seed, action_size, gradient_clip_norm):
-    online = DeepQNetwork(sess, device, 'online_network', random_seed, action_size, 
-        trainable=True,
-        gradient_clip_norm=gradient_clip_norm)
-    target = DeepQNetwork(sess, device, 'target_network', random_seed, action_size)
+            self.online_network, self.target_network = self.init_networks(self.sess, device, settings.random_seed, self.agent.game_state.action_size, settings.gradient_clip_norm)
 
-    return online_network, target_network
+            summary_dir = './logs/{}/'.format(settings.game)
+            summary_writer = tf.summary.FileWriter(summary_dir, self.sess.graph)
+            #stats = Stats(sess, summary_writer, 50)
+            
 
+            wall_t, total_step, saver, checkpoint_dir = self.init_checkpoint(self.sess, settings.game)
 
-signal.signal(signal.SIGINT, signal_handler)
-stop_requested = False
-wall_t = 0
-total_step = 0
+            init = tf.global_variables_initializer()
+            self.sess.run(init)
 
-np.random.seed(settings.random_seed)
-random.seed(settings.random_seed)
+        start_time = time.time() - wall_t
 
-memory = ExperienceReplayMemory(settings.experience_replay_size)
+        print('Start training')
+        self.agent.start()
+        self.stats.start()
 
-prediction_queue = Queue(maxsize=settings.max_queue_size)
-training_queue = Queue(maxsize=settings.max_queue_size)
-
-epsilon_settings = {'initial_epsilon': settings.initial_epsilon, 
-    'final_epsilon': settings.final_epsilon, 
-    'anneal_steps': settings.epsilon_anneal_steps}
-    
-agent = Agent(prediction_queue, training_queue, log_queue, experience_replay, epsilon_settings,
-    random_seed=settings.random_seed, 
-    game=settings.game, 
-    display=settings.display, 
-    no_op_max=settings.no_op_max, 
-    play_mode=settings.play_mode,
-    batch_size=settings.batch_size)
-    
-if settings.use_gpu:
-    device = '/gpu:0'
-else:
-    device = '/cpu:0'
-
-with tf.device(device):
-    sess = tf.Session(
-        config=tf.ConfigProto(
-           log_device_placement=False, 
-           allow_soft_placement=True))
-
-    online_network, target_network = init_networks(sess, device, agent.game_state.action_size, settings.gradient_clip_norm)
-
-    summary_dir = './logs/{}/'.format(settings.game)
-    summary_writer = tf.summary.FileWriter(summary_dir, sess.graph)
-    stats = Stats(sess, summary_writer, 50)
-
-    wall_t, total_step, saver, checkpoint_dir = init_checkpoint()
-
-    init = tf.global_variables_initializer()
-    sess.run(init)
-
-start_time = time.time() - wall_t
-
-print('Start training')
-agent.start()
-
-while stats.total_steps.value < settings.max_step:
+        while stats.total_steps.value < settings.max_step:
             # Saving is async - even if we start saving at a given episode, we may save the model at a later episode
-            if stop_requested:
-                save_checkpoint(sess, saver, checkpoint_dir, wall_t, stats.total_steps.value, start_time)
+            if self.stop_requested:
+                self.save_checkpoint(sess, saver, checkpoint_dir, wall_t, self.stats.total_steps.value, start_time)
 
             time.sleep(0.1)
+
+
+
+    def signal_handler(self, signal, frame):
+        print('You pressed Ctrl+C!')
+        self.stop_requested = True
+
+    def load_checkpoint(self, sess, saver, checkpoint_path):
+        checkpoint = tf.train.get_checkpoint_state(checkpoint_path)
+        if checkpoint and checkpoint.model_checkpoint_path:
+            saver.restore(sess, checkpoint.model_checkpoint_path)
+            print('Checkpoint loaded:', checkpoint.model_checkpoint_path)
+            tokens = checkpoint.model_checkpoint_path.split("-")
+            # set global step
+            global_step = int(tokens[len(tokens)-1])
+            print('Global step set to: ', global_step)
+            # set wall time
+            wall_t_fname = checkpoint_path + '/' + 'wall_t.' + str(global_step)
+            with open(wall_t_fname, 'r') as f:
+                wall_t = float(f.read())
+        else:
+            print('Could not find old checkpoint')
+            global_step = 0
+            wall_t = 0.0
+        return wall_t, global_step
+
+    def init_checkpoint(self, sess, game):
+        checkpoint_dir = './checkpoints/{}/'.format(game)
+        saver = tf.train.Saver(max_to_keep=1)
+        wall_t, total_step = self.load_checkpoint(sess, saver, checkpoint_dir)
+        return wall_t, total_step, saver, checkpoint_dir
+
+    def save_checkpoint(self, sess, saver, checkpoint_dir, wall_t, total_step, start_time):
+        print('Now saving checkpoint. Please wait.')
+        if not os.path.exists('./checkpoints'):
+            os.mkdir('./checkpoints')  
+        if not os.path.exists(checkpoint_dir):
+            os.mkdir(checkpoint_dir)  
+
+        # write wall time
+        wall_t = time.time() - start_time
+        wall_t_fname = checkpoint_dir + '/' + 'wall_t.' + str(total_step)
+        with open(wall_t_fname, 'w') as f:
+            f.write(str(wall_t))
+
+        saver.save(sess, checkpoint_dir + '/' 'checkpoint', global_step=total_step)
+
+    def push_stats_updates(self, stats, loss_arr, learning_rate, q_max_arr, epsilon_arr, action_arr, reward_arr, l_step, g_step):
+        stats.update({'loss': np.average(loss_arr), 
+                    'learning_rate': learning_rate,
+                    'qmax': np.average(q_max_arr),
+                    'epsilon': np.average(epsilon_arr),
+                    'episode_actions': action_arr,
+                    'reward': np.sum(reward_arr),
+                    'steps': l_step,
+                    'step': g_step
+                    }) 
+
+    def init_networks(self, sess, device, random_seed, action_size, gradient_clip_norm):
+        o_network = DeepQNetwork(sess, device, 'online_network', random_seed, action_size, 
+            trainable=True,
+            gradient_clip_norm=gradient_clip_norm)
+        t_network = DeepQNetwork(sess, device, 'target_network', random_seed, action_size)
+
+        return o_network, t_network
+
+    def train_network(self, states, actions, rewards, new_states, terminals):
+        state_batch = np.empty((self.experience_replay_size, 84, 84, 4), dtype=np.float16)
+        action_batch = np.empty((self.experience_replay_size, 1, 3), dtype=np.float16)
+        target_batch = np.empty(self.experience_replay_size)
+        for n in range(len(s_t)):
+            s_t = states[n]
+            a_t = actions[n]
+            r_t = rewards[n]
+            s_t1 = new_states[n]
+            terminal = terminals[n]
+
+            if not terminal:
+                q_t1 = self.agent.target_predict(s_t1)
+                target = r_t + (self.gamma * np.max(q_t1))
+            else:
+                target = r_t
+
+            state_batch[n] = s_t
+            action_batch[n] = a_t
+            target_batch[n] = target
+
+        self.online_network.train(state_batch, action_batch, target_batch)
+        self.training_step += 1
+        self.frame_counter += 1
+
+        self.stats.training_count.value += 1
+
+main(args)
 
