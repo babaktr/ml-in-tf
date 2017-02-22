@@ -107,7 +107,7 @@ class main:
             self.target_prediction_queue, 
             self.training_queue, 
             self.stats.episode_log_queue, 
-            self, 
+            self.experience_replay, 
             epsilon_settings,
             random_seed=settings.random_seed, 
             game=settings.game, 

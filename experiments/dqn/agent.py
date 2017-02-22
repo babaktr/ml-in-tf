@@ -11,13 +11,11 @@ from stats import Stats
 
 class Agent(Process):
     def __init__(self, 
-        server,
         prediction_queue, 
         target_prediction_queue, 
         training_queue, 
         log_queue, 
-        #experience_replay, 
-        server,
+        experience_replay, 
         epsilon_settings,
         random_seed=0, 
         batch_size=32, 
@@ -34,8 +32,7 @@ class Agent(Process):
         self.target_prediction_queue = target_prediction_queue
         self.training_queue = training_queue
         self.log_queue = log_queue
-        self.server = server
-        #self.experience_replay = experience_replay
+        self.experience_replay = experience_replay
         self.epsilon_settings = epsilon_settings
         self.random_seed = random_seed
         self.batch_size = batch_size
@@ -88,8 +85,8 @@ class Agent(Process):
             
             total_reward += reward
 
-            self.server.experience_replay.save(state, action, reward, new_state, terminal)
-            yield self.server.experience_replay.sample(self.batch_size)
+            self.experience_replay.save(state, action, reward, new_state, terminal)
+            yield self.experience_replay.sample(self.batch_size)
 
             steps += 1
             print('s: {}, term: {}, rew: {}'.format(steps, terminal, reward))
@@ -107,14 +104,13 @@ class Agent(Process):
             action = np.random.randint(0, self.game_state.action_size)
             new_state, reward, terminal = self.game_state.step(action)
             
-            self.server.experience_replay.save(state, action, reward, new_state, terminal)
+            self.experience_replay.save(state, action, reward, new_state, terminal)
 
             state = new_state
 
     def run(self):
         # randomly sleep up to 1 second. helps agents boot smoothly.
         time.sleep(2)
-
         for n in range(5):
             print('Episode {}'.format(n))
             self.run_fill_episode()
