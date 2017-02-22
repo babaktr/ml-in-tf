@@ -69,7 +69,7 @@ flags.DEFINE_boolean('display', False, 'Explanation.')
 
 
 flags.DEFINE_integer('random_seed', 1, 'Random seed.')
-flags.DEFINE_string('game', 'PongDeterministic-v0', 'Classic Control-game to play.')
+flags.DEFINE_string('game', 'BreakoutDeterministic-v0', 'Classic Control-game to play.')
 
 args = flags.FLAGS
 
@@ -144,6 +144,7 @@ class main:
         start_time = time.time() - wall_t
 
         print('Start training')
+        time.sleep(10)
         self.predictor_target.start()
         self.predictor_online.start()
         self.trainer.start()

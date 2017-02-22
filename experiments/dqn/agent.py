@@ -110,6 +110,8 @@ class Agent(Process):
 
     def run(self):
         # randomly sleep up to 1 second. helps agents boot smoothly.
+        time.sleep(2)
+        
         for n in range(5):
             print('Episode {}'.format(n))
             self.run_fill_episode()
