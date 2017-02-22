@@ -49,7 +49,7 @@ flags.DEFINE_integer('predict_batch_size', 128, ' ')
 flags.DEFINE_integer('evaluation_frequency', 100000, '')
 flags.DEFINE_boolean('run_evaluation', True, '')
 
-flags.DEFINE_boolean('play_mode', True, '')
+flags.DEFINE_boolean('play_mode', False, '')
 
 
 flags.DEFINE_integer('max_queue_size', 100, '')

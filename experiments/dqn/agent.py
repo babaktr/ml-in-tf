@@ -122,9 +122,14 @@ class Agent(Process):
                 self.epsilon_settings['final_epsilon'], 
                 self.total_steps, 
                 self.epsilon_settings['anneal_steps'])
+
+            total_reward = 0
+            total_steps = 0
             for s_t, a_t, r_t, s_t1, term in self.run_episode(epsilon):
+                total_reward += r_t
+                total_steps += 1
                 if term is None:
                     break
                 self.training_queue.put((s_t, a_t, r_t, s_t1, term))
             #self.total_steps += steps
-            self.log_queue.put((datetime.now(), total_reward, steps))
+            self.log_queue.put((datetime.now(), total_reward, total_steps))
