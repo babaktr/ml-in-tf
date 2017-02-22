@@ -18,6 +18,12 @@ from network import DeepQNetwork
 from agent import Agent
 from experience_replay import ExperienceReplayMemory
 
+from predictor_online import PredictorOnline
+from predictor_target import PredictorTarget
+
+from trainer import Trainer
+
+
 flags = tf.app.flags
 
 # Q-Learning settings
@@ -35,6 +41,9 @@ flags.DEFINE_float('gradient_clip_norm', 40., 'Size of each training batch.')
 flags.DEFINE_integer('experience_replay_size', 1000000, '')
 
 flags.DEFINE_integer('no_op_max', 30, 'h')
+
+flags.DEFINE_integer('predict_batch_size', 128, ' ')
+
 
 
 flags.DEFINE_integer('evaluation_frequency', 100000, '')
@@ -60,7 +69,7 @@ flags.DEFINE_boolean('display', False, 'Explanation.')
 
 
 flags.DEFINE_integer('random_seed', 1, 'Random seed.')
-flags.DEFINE_string('game', 'BreakoutDeterministic-v0', 'Classic Control-game to play.')
+flags.DEFINE_string('game', 'PongDeterministic-v0', 'Classic Control-game to play.')
 
 args = flags.FLAGS
 
@@ -74,8 +83,13 @@ class main:
         np.random.seed(settings.random_seed)
         random.seed(settings.random_seed)
         self.gamma = settings.gamma
+        self.batch_size = settings.batch_size
 
         self.experience_replay = ExperienceReplayMemory(settings.experience_replay_size)
+
+        self.predictor_online = PredictorOnline(self, settings.predict_batch_size)
+        self.predictor_target = PredictorTarget(self, settings.predict_batch_size)
+        self.trainer = Trainer(self)
 
         self.prediction_queue = Queue(maxsize=settings.max_queue_size)
         self.target_prediction_queue = Queue(maxsize=settings.max_queue_size)
@@ -88,7 +102,13 @@ class main:
             'final_epsilon': settings.final_epsilon, 
             'anneal_steps': settings.epsilon_anneal_steps}
 
-        self.agent = Agent(self.prediction_queue, self.training_queue, self.stats.log_queue, self.experience_replay, epsilon_settings,
+        self.agent = Agent(
+            self.prediction_queue, 
+            self.target_prediction_queue, 
+            self.training_queue, 
+            self.stats.episode_log_queue, 
+            self.experience_replay, 
+            epsilon_settings,
             random_seed=settings.random_seed, 
             game=settings.game, 
             display=settings.display, 
@@ -124,10 +144,14 @@ class main:
         start_time = time.time() - wall_t
 
         print('Start training')
+        self.predictor_target.start()
+        self.predictor_online.start()
+        self.trainer.start()
         self.agent.start()
         self.stats.start()
 
-        while stats.total_steps.value < settings.max_step:
+
+        while self.stats.total_steps.value < settings.max_step:
             # Saving is async - even if we start saving at a given episode, we may save the model at a later episode
             if self.stop_requested:
                 self.save_checkpoint(sess, saver, checkpoint_dir, wall_t, self.stats.total_steps.value, start_time)
@@ -200,12 +224,12 @@ class main:
         return o_network, t_network
 
     def train_network(self, states, actions, rewards, new_states, terminals):
-        state_batch = np.empty((self.experience_replay_size, 84, 84, 4), dtype=np.float16)
-        action_batch = np.empty((self.experience_replay_size, 1, 3), dtype=np.float16)
-        target_batch = np.empty(self.experience_replay_size)
-        for n in range(len(s_t)):
-            s_t = states[n]
-            a_t = actions[n]
+        state_batch = np.empty((self.batch_size, 84, 84, 4), dtype=np.float16)
+        action_batch = np.empty((self.batch_size, 3), dtype=np.float16)
+        target_batch = np.empty((self.batch_size, 1))
+        for n in range(len(states)):
+            #s_t = states[n]
+            #a_t = actions[n]
             r_t = rewards[n]
             s_t1 = new_states[n]
             terminal = terminals[n]
@@ -216,14 +240,13 @@ class main:
             else:
                 target = r_t
 
-            state_batch[n] = s_t
-            action_batch[n] = a_t
+            #state_batch[n] = s_t
+            #action_batch[n] = a_t
             target_batch[n] = target
 
-        self.online_network.train(state_batch, action_batch, target_batch)
-        self.training_step += 1
-        self.frame_counter += 1
-
+        self.online_network.train(states, actions, target_batch)
+        #self.stats.training_count += 1
+        #self.stats.frame_counter += 1
         self.stats.training_count.value += 1
 
 main(args)

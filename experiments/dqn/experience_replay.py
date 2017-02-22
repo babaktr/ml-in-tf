@@ -9,7 +9,7 @@ class ExperienceReplayMemory(object):
 
     def reset(self):
         self.s_t_memory = np.empty((self.experience_replay_size, 84, 84, 4), dtype=np.float16)
-        self.a_t_memory = np.empty((self.experience_replay_size, 1, 3), dtype=np.float16)
+        self.a_t_memory = np.empty((self.experience_replay_size, 3), dtype=np.float16)
         self.r_t_memory = np.empty(self.experience_replay_size)
         self.s_t1_memory = np.empty((self.experience_replay_size, 84, 84, 4), dtype=np.float16)
         self.terminal_memory = np.empty(self.experience_replay_size)

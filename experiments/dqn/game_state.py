@@ -45,6 +45,7 @@ class GameState(object):
     def reset(self):
         self.accumulated_reward = 0
         x_t_raw = self.game.reset()
+        terminal = False
     
         accumulated_reward = 0
 
@@ -71,12 +72,6 @@ class GameState(object):
         # Clip reward to [-1, 1]
         reward = np.clip(reward, -1, 1)
 
-        self.s_t1 = np.append(self.s_t[:,:,1:], x_t1.reshape(84, 84, 1), axis=2)
+        self.s_t = np.append(self.s_t[:,:,1:], x_t1.reshape(84, 84, 1), axis=2)
 
-        return self.s_t1, reward, terminal
-
-    ''' 
-    Update internal game state s_t to s_t1.
-    '''
-    def update_state(self):
-        self.s_t = self.s_t1
+        return self.s_t, reward, terminal

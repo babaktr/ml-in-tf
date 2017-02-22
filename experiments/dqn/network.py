@@ -125,9 +125,9 @@ class DeepQNetwork(object):
     def train(self, s_input, a_input, y_input):
         with tf.device(self.device):
             feed_dict = {
-                self.s: np.vstack(s_input),
-                self.a: np.vstack(a_input),
-                self.y: np.vstack(y_input)
+                self.s: s_input,
+                self.a: a_input,
+                self.y: y_input
                 }
             _, loss_value = self.sess.run([self.train_op, self.loss], feed_dict=feed_dict)
             return loss_value

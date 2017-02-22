@@ -1,16 +1,13 @@
 from threading import Thread
 import numpy as np
 
-from Config import Config
-
 
 class Trainer(Thread):
-    def __init__(self, server, batch_size):
+    def __init__(self, server):
         super(Trainer, self).__init__()
         self.setDaemon(True)
 
         self.server = server
-        self.batch_size = batch_size
         self.stop_flag = False
 
     def run(self):

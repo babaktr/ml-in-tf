@@ -14,7 +14,7 @@ import time
 class Stats(Process):
     def __init__(self, total_steps):
         super(Stats, self).__init__()
-        self.log_queue = Queue(maxsize=100)
+        self.episode_log_queue = Queue(maxsize=100)
         self.total_steps = Value('i', 0)
         self.training_count = Value('i', 0)
         self.episode_count = Value('i', 0)
@@ -27,15 +27,17 @@ class Stats(Process):
         return np.ceil(self.training_count.value / (time.time() - self.start_time))
 
     def run(self):
+        print('STATS START')
         with open('results.txt', 'a') as results_logger:
             self.start_time = time.time()
             first_time = datetime.now()
             while True:
-                episode_time, reward, length = self.episode_log_queue.get()
+                print('RUN')
+                episode_time, reward, steps = self.episode_log_queue.get()
                 results_logger.write('%s, %d, %d\n' % (episode_time.strftime("%Y-%m-%d %H:%M:%S"), reward, length))
                 results_logger.flush()
 
-                self.total_steps += steps
+                self.total_steps.value += steps
                 self.episode_count.value += 1
 
                 print(
