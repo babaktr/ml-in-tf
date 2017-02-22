@@ -107,7 +107,7 @@ class main:
             self.target_prediction_queue, 
             self.training_queue, 
             self.stats.episode_log_queue, 
-            self.experience_replay, 
+            self, 
             epsilon_settings,
             random_seed=settings.random_seed, 
             game=settings.game, 
@@ -144,7 +144,7 @@ class main:
         start_time = time.time() - wall_t
 
         print('Start training')
-        time.sleep(10)
+        time.sleep(1)
         self.predictor_target.start()
         self.predictor_online.start()
         self.trainer.start()
