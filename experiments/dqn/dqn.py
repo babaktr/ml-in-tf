@@ -52,7 +52,7 @@ flags.DEFINE_boolean('run_evaluation', True, '')
 flags.DEFINE_boolean('play_mode', False, '')
 
 
-flags.DEFINE_integer('max_queue_size', 100, '')
+flags.DEFINE_integer('max_queue_size', 200, '')
 
 
 

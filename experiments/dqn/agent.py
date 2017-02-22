@@ -116,7 +116,7 @@ class Agent(Process):
             self.run_fill_episode()
 
         print('CURRENT ER SIZE: {}'.format(self.experience_replay.current_size))
-
+        total_steps = 0
         while self.stop_flag.value == 0:
             epsilon = self.anneal_epsilon(
                 self.epsilon_settings['initial_epsilon'], 
@@ -125,7 +125,6 @@ class Agent(Process):
                 self.epsilon_settings['anneal_steps'])
 
             total_reward = 0
-            total_steps = 0
             for s_t, a_t, r_t, s_t1, term in self.run_episode(epsilon):
                 total_reward += r_t
                 total_steps += 1
@@ -133,4 +132,6 @@ class Agent(Process):
                     break
                 self.training_queue.put((s_t, a_t, r_t, s_t1, term))
             #self.total_steps += steps
+            print('total_steps: {}'.format(total_steps))
+            print(' ')
             self.log_queue.put((datetime.now(), total_reward, total_steps))

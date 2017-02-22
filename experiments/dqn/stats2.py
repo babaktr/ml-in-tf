@@ -34,8 +34,8 @@ class Stats(Process):
             while True:
                 print('RUN')
                 episode_time, reward, steps = self.episode_log_queue.get()
-                results_logger.write('%s, %d, %d\n' % (episode_time.strftime("%Y-%m-%d %H:%M:%S"), reward, length))
-                results_logger.flush()
+                #results_logger.write('%s, %d, %d\n' % (episode_time.strftime("%Y-%m-%d %H:%M:%S"), reward, length))
+                #results_logger.flush()
 
                 self.total_steps.value += steps
                 self.episode_count.value += 1

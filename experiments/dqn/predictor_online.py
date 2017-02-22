@@ -5,7 +5,7 @@ class PredictorOnline(Thread):
     def __init__(self, server, batch_size):
         super(PredictorOnline, self).__init__()
         self.setDaemon(True)
-        self.batch_size = batch_size
+        self.batch_size = 2
 
         self.server = server
         self.stop_flag = False
