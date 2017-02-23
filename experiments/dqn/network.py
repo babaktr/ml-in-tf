@@ -51,49 +51,85 @@ class DeepQNetwork(object):
                 # Target Q-value batch with shape [?, 1]
                 self.y = tf.placeholder(tf.float32, shape=[None, 1], name='target-q_value')
 
-        with tf.name_scope('conv-1') as scope:
-            self.W_conv1 = self.conv_weight_variable([8, 8, 4, 32], name='w_conv1')
-            self.b_conv1 = self.bias_variable([32], name='b_conv1')
-            stride_1 = 4
+        if True: #NIPS
+            with tf.name_scope('conv-1') as scope:
+                self.W_conv1 = self.conv_weight_variable([8, 8, 4, 16], name='w_conv1')
+                self.b_conv1 = self.bias_variable([16], name='b_conv1')
+                stride_1 = 4
 
-            with tf.name_scope('conv1-out') as scope:
-                self.h_conv1 = tf.nn.relu(tf.add(self.conv2d(self.s, self.W_conv1, stride_1), self.b_conv1))
+                with tf.name_scope('conv1-out') as scope:
+                    self.h_conv1 = tf.nn.relu(tf.add(self.conv2d(self.s, self.W_conv1, stride_1), self.b_conv1))
 
-        with tf.name_scope('conv-2') as scope:
-            self.W_conv2 = self.conv_weight_variable([4, 4, 32, 64], name='w_conv2')
-            self.b_conv2 = self.bias_variable([64], name='b_conv2')
-            stride_2 = 2
+            with tf.name_scope('conv-2') as scope:
+                self.W_conv2 = self.conv_weight_variable([4, 4, 16, 32], name='w_conv2')
+                self.b_conv2 = self.bias_variable([32], name='b_conv2')
+                stride_2 = 2
 
-            with tf.name_scope('conv2-out') as scope:
-                self.h_conv2 = tf.nn.relu(tf.add(self.conv2d(self.h_conv1, self.W_conv2, stride_2), self.b_conv2))
+                with tf.name_scope('conv2-out') as scope:
+                    self.h_conv2 = tf.nn.relu(tf.add(self.conv2d(self.h_conv1, self.W_conv2, stride_2), self.b_conv2))
 
-        with tf.name_scope('conv-3') as scope:
-            self.W_conv3 = self.conv_weight_variable([3, 3, 64, 64], name='w_conv3')
-            self.b_conv3 = self.bias_variable([64], name='b_conv3')
-            stride_3 = 1
+            with tf.name_scope('fully_connected') as scope:
+                
+                self.W_fc1 = self.weight_variable([9*9*32, 256], name='w_fc')
+                self.b_fc1 = self.bias_variable([256], name='b_fc')
 
-            with tf.name_scope('conv3-out') as scope:
-                self.h_conv3 = tf.nn.relu(tf.add(self.conv2d(self.h_conv2, self.W_conv3, stride_3), self.b_conv3))
+                # Fully connected layer output
+                with tf.name_scope('fully-connected-out') as scope:
+                    h_conv2_flat = tf.reshape(self.h_conv2, [tf.negative(1), 9*9*32])
+                    self.h_fc1 = tf.nn.relu(tf.add(tf.matmul(h_conv2_flat, self.W_fc1), self.b_fc1))
 
-        with tf.name_scope('fully_connected') as scope:
-            h_conv3_shape = self.h_conv3.get_shape().as_list()
-            h_conv3_weights = h_conv3_shape[1] * h_conv3_shape[2] * h_conv3_shape[3]
-            self.W_fc1 = self.weight_variable([h_conv3_weights, 512], name='w_fc')
-            self.b_fc1 = self.bias_variable([512], name='b_fc')
+            # Output layer weights and biases
+            with tf.name_scope('output') as scope:
+                self.W_fc2 = self.weight_variable([256, self.action_size], name='w_out')
+                self.b_fc2 = self.bias_variable([self.action_size], name='b_out')
 
-            # Fully connected layer output
-            with tf.name_scope('fully-connected-out') as scope:
-                h_conv3_flat = tf.reshape(self.h_conv3, [tf.negative(1), h_conv3_weights])
-                self.h_fc1 = tf.nn.relu(tf.add(tf.matmul(h_conv3_flat, self.W_fc1), self.b_fc1))
+                # Output
+                with tf.name_scope('q_values') as scope:
+                    self.q_values = tf.add(tf.matmul(self.h_fc1, self.W_fc2), self.b_fc2)
 
-        # Output layer weights and biases
-        with tf.name_scope('output') as scope:
-            self.W_fc2 = self.weight_variable([512, self.action_size], name='w_out')
-            self.b_fc2 = self.bias_variable([self.action_size], name='b_out')
+        else:
+            with tf.name_scope('conv-1') as scope:
+                self.W_conv1 = self.conv_weight_variable([8, 8, 4, 32], name='w_conv1')
+                self.b_conv1 = self.bias_variable([32], name='b_conv1')
+                stride_1 = 4
 
-            # Output
-            with tf.name_scope('q_values') as scope:
-                self.q_values = tf.add(tf.matmul(self.h_fc1, self.W_fc2), self.b_fc2)
+                with tf.name_scope('conv1-out') as scope:
+                    self.h_conv1 = tf.nn.relu(tf.add(self.conv2d(self.s, self.W_conv1, stride_1), self.b_conv1))
+
+            with tf.name_scope('conv-2') as scope:
+                self.W_conv2 = self.conv_weight_variable([4, 4, 32, 64], name='w_conv2')
+                self.b_conv2 = self.bias_variable([64], name='b_conv2')
+                stride_2 = 2
+
+                with tf.name_scope('conv2-out') as scope:
+                    self.h_conv2 = tf.nn.relu(tf.add(self.conv2d(self.h_conv1, self.W_conv2, stride_2), self.b_conv2))
+
+            with tf.name_scope('conv-3') as scope:
+                self.W_conv3 = self.conv_weight_variable([3, 3, 64, 64], name='w_conv3')
+                self.b_conv3 = self.bias_variable([64], name='b_conv3')
+                stride_3 = 1
+
+                with tf.name_scope('conv3-out') as scope:
+                    self.h_conv3 = tf.nn.relu(tf.add(self.conv2d(self.h_conv2, self.W_conv3, stride_3), self.b_conv3))
+
+            with tf.name_scope('fully_connected') as scope:
+                
+                self.W_fc1 = self.weight_variable([h_conv3_weights, 512], name='w_fc')
+                self.b_fc1 = self.bias_variable([512], name='b_fc')
+
+                # Fully connected layer output
+                with tf.name_scope('fully-connected-out') as scope:
+                    h_conv3_flat = tf.reshape(self.h_conv3, [tf.negative(1), h_conv3_weights])
+                    self.h_fc1 = tf.nn.relu(tf.add(tf.matmul(h_conv3_flat, self.W_fc1), self.b_fc1))
+
+            # Output layer weights and biases
+            with tf.name_scope('output') as scope:
+                self.W_fc2 = self.weight_variable([512, self.action_size], name='w_out')
+                self.b_fc2 = self.bias_variable([self.action_size], name='b_out')
+
+                # Output
+                with tf.name_scope('q_values') as scope:
+                    self.q_values = tf.add(tf.matmul(self.h_fc1, self.W_fc2), self.b_fc2)
 
         if trainable:
             with tf.name_scope('optimizer') as scope:
@@ -122,7 +158,7 @@ class DeepQNetwork(object):
                 self.W_fc2, self.b_fc2]
 
 
-    def train(self, s_input, a_input, y_input):
+    def train(self, s_input, a_input, y_input, trainer_id):
         with tf.device(self.device):
             feed_dict = {
                 self.s: s_input,

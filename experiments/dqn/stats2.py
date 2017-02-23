@@ -18,6 +18,7 @@ class Stats(Process):
         self.total_steps = Value('i', 0)
         self.training_count = Value('i', 0)
         self.episode_count = Value('i', 0)
+        self.stop_flag = Value('i', 0)
         self.total_frame_count = 0
 
     def FPS(self):
@@ -31,7 +32,7 @@ class Stats(Process):
         with open('results.txt', 'a') as results_logger:
             self.start_time = time.time()
             first_time = datetime.now()
-            while True:
+            while self.stop_flag.value == 0:
                 print('RUN')
                 episode_time, reward, steps = self.episode_log_queue.get()
                 #results_logger.write('%s, %d, %d\n' % (episode_time.strftime("%Y-%m-%d %H:%M:%S"), reward, length))

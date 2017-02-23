@@ -44,8 +44,6 @@ flags.DEFINE_integer('no_op_max', 30, 'h')
 
 flags.DEFINE_integer('predict_batch_size', 128, ' ')
 
-
-
 flags.DEFINE_integer('evaluation_frequency', 100000, '')
 flags.DEFINE_boolean('run_evaluation', True, '')
 
@@ -89,7 +87,13 @@ class main:
 
         self.predictor_online = PredictorOnline(self, settings.predict_batch_size)
         self.predictor_target = PredictorTarget(self, settings.predict_batch_size)
-        self.trainer = Trainer(self)
+        self.trainers = [
+        	Trainer(self, 0),
+        	Trainer(self, 1),
+        	Trainer(self, 2),
+        	Trainer(self, 3),
+        	Trainer(self, 4)]
+
 
         self.prediction_queue = Queue(maxsize=settings.max_queue_size)
         self.target_prediction_queue = Queue(maxsize=settings.max_queue_size)
@@ -147,7 +151,8 @@ class main:
         time.sleep(1)
         self.predictor_target.start()
         self.predictor_online.start()
-        self.trainer.start()
+        for t in self.trainers:
+        	t.start()
         self.agent.start()
         self.stats.start()
 
@@ -155,9 +160,18 @@ class main:
         while self.stats.total_steps.value < settings.max_step:
             # Saving is async - even if we start saving at a given episode, we may save the model at a later episode
             if self.stop_requested:
-                self.save_checkpoint(sess, saver, checkpoint_dir, wall_t, self.stats.total_steps.value, start_time)
+                #self.save_checkpoint(self.sess, saver, checkpoint_dir, wall_t, self.stats.total_steps.value, start_time)
+                self.agent.stop_flag.value = 1
+                self.predictor_online.stop_flag = True
+                self.predictor_target.stop_flag = True
+                self.trainer.stop_flag = True
+                self.stats.stop_flag = True
+                break
 
             time.sleep(0.1)
+        print('Ending?')
+
+
 
 
 
@@ -224,7 +238,7 @@ class main:
 
         return o_network, t_network
 
-    def train_network(self, states, actions, rewards, new_states, terminals):
+    def train_network(self, states, actions, rewards, new_states, terminals, trainer_id):
         state_batch = np.empty((self.batch_size, 84, 84, 4), dtype=np.float16)
         action_batch = np.empty((self.batch_size, 3), dtype=np.float16)
         target_batch = np.empty((self.batch_size, 1))
@@ -245,7 +259,8 @@ class main:
             #action_batch[n] = a_t
             target_batch[n] = target
 
-        self.online_network.train(states, actions, target_batch)
+        self.online_network.train(states, actions, target_batch, trainer_id)
+        print('train done')
         #self.stats.training_count += 1
         #self.stats.frame_counter += 1
         self.stats.training_count.value += 1
