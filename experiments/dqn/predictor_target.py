@@ -2,11 +2,12 @@ from threading import Thread
 import numpy as np
 
 class PredictorTarget(Thread):
-    def __init__(self, server, batch_size):
+    def __init__(self, server, batch_size, id):
         super(PredictorTarget, self).__init__()
         self.setDaemon(True)
         self.batch_size = 2
 
+        self.id = id
         self.server = server
         self.stop_flag = False
 

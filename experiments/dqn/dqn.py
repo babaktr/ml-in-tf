@@ -85,8 +85,18 @@ class main:
 
         self.experience_replay = ExperienceReplayMemory(settings.experience_replay_size)
 
-        self.predictor_online = PredictorOnline(self, settings.predict_batch_size)
-        self.predictor_target = PredictorTarget(self, settings.predict_batch_size)
+        self.predictors_online = [
+        	PredictorOnline(self, settings.predict_batch_size, 0),
+        	PredictorOnline(self, settings.predict_batch_size, 1),
+        	PredictorOnline(self, settings.predict_batch_size, 2),
+        	PredictorOnline(self, settings.predict_batch_size, 3)]
+
+        self.predictors_target = [
+        	PredictorTarget(self, settings.predict_batch_size, 0),
+        	PredictorTarget(self, settings.predict_batch_size, 1),
+        	PredictorTarget(self, settings.predict_batch_size, 2),
+        	PredictorTarget(self, settings.predict_batch_size, 3)]
+
         self.trainers = [
         	Trainer(self, 0),
         	Trainer(self, 1),
@@ -149,8 +159,10 @@ class main:
 
         print('Start training')
         time.sleep(1)
-        self.predictor_target.start()
-        self.predictor_online.start()
+        for p_t in self.predictors_target:
+        	p_t.start()
+        for p_s in self.predictor_online:
+        	p_s.start()
         for t in self.trainers:
         	t.start()
         self.agent.start()
