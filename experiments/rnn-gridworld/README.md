@@ -1,5 +1,7 @@
 # RNN-Gridworld Experiment
 
+**Note**: There seems to be an issue with this code running on TensorFlow 1.0. Working on getting it fixed as soon as possible!
+
 <p align="center">
   <img src="../../images/graphs/rnn-gridworld-graph.png", width="50%"/>
 </p>
