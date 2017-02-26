@@ -54,7 +54,7 @@ to ```gradient_descent```.
 
 ## Experiment Results
 
-The implementation is really straight forward and should receive an accuracy of ≈ 97% on the test set.
+The implementation is really straight forward and should receive an accuracy of ≈97% on the test set.
 The plot below shows a standard run will all default parameters.
 <p align="center">
   <img src="../../images/plots/rnn-mnist-plot.png", width="70%"/>
