@@ -69,10 +69,10 @@ for i in range(settings.minibatches):
 
     if i % settings.status_update == 0:
         # Print update
-        print 'Minibatches: {}, Loss: {}, Accuracy: {}%'.format(i, format(loss, '.4f'), format(acc, '.4f'))
+        print('Minibatches done: {}, Loss: {}, Accuracy: {} %'.format(max(i, 1), format(loss, '.4f'), format(acc, '.4f')))
 
 if settings.run_test:
-    print ' --- TESTING MODEL ---'
+    print(' --- TESTING MODEL ---')
     x = 0
     accuracy = []
     for n in range((len(mnist.test.images)/settings.minibatch_size)):
@@ -85,4 +85,4 @@ if settings.run_test:
         acc = network.get_accuracy(batch_xs, batch_ys)
         accuracy.append(acc)
 
-    print('Accuracy on test set: {}%'.format(format(np.average(accuracy), '.3f')))
+    print('Accuracy on test set: {} %'.format(format(np.average(accuracy), '.4f')))

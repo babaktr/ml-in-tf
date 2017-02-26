@@ -13,7 +13,7 @@ class RecurrentNeuralNetwork(object):
                 self.x = tf.placeholder(tf.float32, shape=[None, sequence_length*input_size], name='x-input')
                 with tf.name_scope('input-preprocess'):
                     # Get x input in correct format [batch_size, ]
-                    x_squared = tf.reshape(self.x, [-1, settings.sequence_length, settings.input_size])
+                    x_squared = tf.reshape(self.x, [-1, sequence_length, input_size])
                     x_transposed = tf.transpose(x_squared, [1,0,2])
                     x_reshaped = tf.reshape(x_transposed, [-1, input_size])
                     x_split = tf.split(x_reshaped, num_or_size_splits=sequence_length, axis=0)
