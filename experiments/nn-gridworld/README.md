@@ -85,5 +85,4 @@ As you can see in the plot, something happend to the performance of the agent ju
 ## Next step
 If you have played around anythin with the ```field_size```, you'll quickly notice that the network runs into trouble as you are approaching 10. This is partly due to the exponentially larger state we send in to the network, but also because a single row of states actually isn't the best possible representation of the game. 
 
-But is there a way where we can keep it like it is and perhaps bypass this issue in larger state spaces? Actually, there [is a way](../rnn-gridworld/) we could try out.
 
