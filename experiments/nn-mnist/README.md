@@ -39,7 +39,6 @@ The customizable parameters of this experiment - and their default values - are 
 * ```run_test``` - ```True``` - If the final model should be tested.
 * ```use_gpu``` -  ```False``` - If TensorFlow operations should run on GPU rather than CPU.
 
-
 ## Experiment Results
 The implementation is really straight forward and should receive an accuracy of ≈ 88% on the test set.
 The plot below shows a standard run will all default parameters.
