@@ -40,7 +40,7 @@ network = NeuralNetwork(
 
 # Statistics summary writer
 # Statistics summary writer
-summary_dir = '../../logs/rnn-mnist_minibatches-{}_minibatchsize-{}_lr-{}_optimizer-{}/'.format(
+summary_dir = '../../logs/nn-mnist_minibatches-{}_minibatchsize-{}_lr-{}_optimizer-{}/'.format(
     settings.minibatches, 
     settings.minibatch_size, 
     settings.learning_rate, 
