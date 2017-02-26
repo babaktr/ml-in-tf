@@ -14,9 +14,9 @@ flags = tf.app.flags
 
 flags.DEFINE_integer('minibatches', 20000, 'Number of minibatches to run the training on.')
 flags.DEFINE_integer('minibatch_size', 50, 'Number of samples in each minibatch.')
-flags.DEFINE_float('learning_rate', 0.001, 'Learning rate of the optimizer.')
+flags.DEFINE_float('learning_rate', 0.0001, 'Learning rate of the optimizer.')
 flags.DEFINE_integer('status_update', 100, 'How often to print an status update.')
-flags.DEFINE_string('optimizer', 'gradient_descent', 'If another optimizer should be used [adam, rmsprop]. Defaults to gradient descent')
+flags.DEFINE_string('optimizer', 'adam', 'If another optimizer should be used [adam, rmsprop]. Defaults to gradient descent.')
 flags.DEFINE_integer('random_seed', 123, 'Sets the random seed.')
 flags.DEFINE_boolean('run_test', True, 'If the final model should be tested')
 flags.DEFINE_boolean('use_gpu', False, 'If it should run the TensorFlow operations on the GPU rather than the CPU.')
@@ -32,7 +32,11 @@ if settings.use_gpu:
 else:
     device = '/cpu:0'
 
-network = ConvolutionalNeuralNetwork(device, settings.random_seed, settings.learning_rate, settings.optimizer)
+network = ConvolutionalNeuralNetwork(
+    device, 
+    settings.random_seed, 
+    settings.learning_rate, 
+    settings.optimizer)
 
 # Statistics summary writer
 summary_dir = '../../logs/cnn-mnist_minibatches-{}_minibatchsize-{}_lr-{}_optimizer-{}/'.format(
@@ -46,22 +50,22 @@ stats = Stats(network.sess, summary_writer, 2)
 
 for i in range (settings.minibatches): 
     # Get minibatch
-    batch = mnist.train.next_batch(settings.minibatch_size)
+    batch_xs, batch_ys = mnist.train.next_batch(settings.minibatch_size)
 
     # Calculate batch accuracy
-    acc = network.get_accuracy(batch[0], batch[1])
+    acc = network.get_accuracy(batch_xs, batch_ys)
 
     # Run training
-    loss = network.train(batch[0], batch[1])
+    loss = network.train(batch_xs, batch_ys)
 
     stats.update({'loss': loss, 'accuracy': acc, 'step': i})
 
     if i % settings.status_update == 0:
         # Print update
-        print('Minibatches done: {}, Loss: {}, Accuracy: {} %'.format(max(1,i), format(loss, '.4f'), format(acc, '.4f')))
+        print('Minibatches done: {}, Loss: {}, Accuracy: {}%'.format(max(1,i), format(loss, '.4f'), format(acc*100, '.2f')))
 
 if settings.run_test:
     print(' --- TESTING MODEL ---')
     accuracy = network.get_accuracy(mnist.test.images, mnist.test.labels)
-    print('Accuracy on test set: {} %'.format(format(accuracy, '.4f')))
+    print('Accuracy on test set: {} %'.format(format(accuracy*100, '.2f')))
                     
