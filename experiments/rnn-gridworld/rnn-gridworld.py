@@ -9,6 +9,8 @@ from stats import Stats
 from network import RecurrentNeuralNetwork
 from gridworld import GridWorld
 
+import time
+
 flags = tf.app.flags
 
 # Q-Learning settings
@@ -73,10 +75,13 @@ episode = 0
 epsilon = settings.initial_epsilon
 
 while settings.episodes > episode:
+
+    states = []
 	# Prepare environment for playing
     state = env.reset()
-    # Stack states in shape [3, 1, input_size]
-    states = np.full((settings.sequence_length, 1, input_size), state.reshape(1, input_size))
+    # Stack states in shape [3, input_size]
+    states.append(state.reshape(1, input_size))
+    values = [0]
 
     # Reset or increment values
     terminal = False
@@ -88,13 +93,29 @@ while settings.episodes > episode:
     loss_arr = []
     acc_arr = []
 
+    # rnn = tf.nn.rnn_cell.MultiRNNCell(cells)   
+    # zero_state = pack_state_tupel(rnn.zero_state(batch_size, tf.float32)) 
+    # self.initial_state = tf.placeholder_with_default(zero_state, None)  
+    # output, final_state = tf.nn.dynamic_rnn(rnn, self.input_sound, initial_state = unpack_state_tupel(self.initial_state, rnn.state_size))  
+    # packed_state = pack_state_tupel(final_state)  
+    # sess = tf.Session() 
+    # sess.run(tf.initialize_all_variables())  
+    # state_output = sess.run(packed_state, feed_dict = {self.input_sound: np.zeros((64, 32, 512))}) 
+    # print(state_output.shape) state_output = sess.run(packed_state, feed_dict = {self.input_sound: np.zeros((64, 32, 512)), self.initial_state: np.zeros(state_output.shape[0])}) print(state_output) 
+
+
     while not terminal and step < settings.train_step_limit: 
         step += 1
         # Get the Q-values of the current state
-        q_values = rnn_network.predict(states)
-
+        #print 'stack shape: {}'.format(np.vstack(states).shape)
+        q_values = rnn_network.predict(np.vstack(states))
+        print 'q_values: \n{}'.format(q_values)
+        q_values = q_values[-1]
+        #time.sleep(3)
         # Save max(Q(s,a)) for stats
         q_max = np.max(q_values)
+
+
         
         # Anneal epsilon
         if epsilon > settings.final_epsilon: 
@@ -104,7 +125,7 @@ while settings.episodes > episode:
             epsilon = settings.final_epsilon
 
         # Select action
-        if (np.random.random() < epsilon): 
+        if (np.random.random() < epsilon) or len(states) < 3: 
             # Choose random action
             action = np.random.randint(0,4)
         else: 
@@ -114,20 +135,26 @@ while settings.episodes > episode:
         # Take action and observe new state and reward, check if state is terminal
         new_state, reward, terminal = env.perform_action(action)
 
-        # Pop the oldest state
-        new_states = np.delete(states, 0, 0)
+        
+        #new_states = np.delete(states, 0, 0)
         
         # Separate the other states into a tuple
-        new_states_tuple = ()
-        for i in range(len(new_states)):
-            new_states_tuple += (new_states[i],)
+        #new_states_tuple = ()
+        #for i in range(len(new_states)):
+        #    new_states_tuple += (new_states[i],)
         
         # Add new state to tuple and stack the new states
-        new_states_tuple += (new_state.reshape(1, input_size),)
-        new_states = np.stack(new_states_tuple)
+        #new_states_tuple += (new_state.reshape(1, input_size),)
+        #new_states = np.stack(new_states_tuple)
+        new_states = states
+        if len(new_states) = settings.sequence_length:
+            new_states.pop()
 
+        new_states.insert(0, new_state.reshape(1, input_size))
+
+        #print 'state shape -----------: {}'.format(np.vstack(new_states).shape)
        	# Get the new state's Q-values
-        q_values_new = rnn_network.predict(new_states)
+        q_values_new = rnn_network.predict(np.vstack(new_states))
         # Get max(Q(s',a')) to update Q(s,a)
         q_max_new = np.max(q_values_new)
 
@@ -139,13 +166,14 @@ while settings.episodes > episode:
             update = reward
 
         # Updated the desired output for training the network
-        q_values[0][action] = update
+        #print q_values
+        q_values[action] = update
 
         # Calculate accuracy
-        acc = rnn_network.get_accuracy(states, q_values)
+        #acc = rnn_network.get_accuracy(np.vstack(new_states), q_values)
 
         # Run training
-        loss = rnn_network.train(states, q_values)
+        loss = rnn_network.train(np.vstack(new_states), q_values)
 
         # Set the current state to the new state
         states = new_states
@@ -155,7 +183,7 @@ while settings.episodes > episode:
         reward_arr.append(reward)
         q_max_arr.append(q_max)
         loss_arr.append(loss)
-        acc_arr.append(acc)
+        acc_arr.append(0)
 
     # Episode ended, update log and print stats
     stats.update({'loss':np.average(loss_arr), 
@@ -178,7 +206,7 @@ if settings.run_test:
     rewards = []
     for n in range(settings.test_runs):
         state = env.reset()  
-        states = np.full((settings.sequence_length, 1, input_size), state.reshape(1, input_size))      
+        states = [state.reshape(1, input_size), state.reshape(1, input_size), state.reshape(1, input_size)]
         terminal = False
         step = 0
         q_max_arr = []
