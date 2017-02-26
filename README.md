@@ -14,7 +14,7 @@ It is currently under construction, but if you have any feedback, suggestions or
 </p>
 
 ### Implemented Examples
-* [Q-Gridworld](/experiments/q-gridworld) (See also: [NN-Gridworld](/experiments/nn-gridworld), [RNN-Gridworld](/experiments/rnn-gridworld))
+* [Q-Gridworld](/experiments/q-gridworld) 
 * [Deep Q-Network with Experience Replay](/experiments/dqn) (_Work in progress_)
 * [Asynchronous 1-step Deep Reinforcement Learning](https://github.com/babaktr/asynchronous_1step) (_Work in progress_)
 
@@ -32,7 +32,7 @@ It is currently under construction, but if you have any feedback, suggestions or
 
 ### Implemented Examples
 * [XOR](/experiments/xor) (_Work in progress_)
-* [NN-MNIST](/experiments/nn-mnist)
+* [NN-MNIST](/experiments/nn-mnist) (_Work in progress_)
 * [NN-Gridworld](/experiments/nn-gridworld)
 
 ### Good Reads
@@ -58,7 +58,7 @@ It is currently under construction, but if you have any feedback, suggestions or
 </p>
 
 ### Implemented Examples
-* [CNN-MNIST](/experiments/cnn-mnist)
+* [CNN-MNIST](/experiments/cnn-mnist) (_Work in progress_)
 
 ### Good Reads
 * [Convolutional Neural Networks (part of CS231 at Stanford)](http://cs231n.github.io/convolutional-networks/)
