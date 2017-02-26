@@ -32,7 +32,7 @@ It is currently under construction, but if you have any feedback, suggestions or
 
 ### Implemented Examples
 * [XOR](/experiments/xor) (_Work in progress_)
-* [MNIST](/experiments/mnist)
+* [MNIST](/experiments/nn-mnist)
 * [NN-Gridworld](/experiments/nn-gridworld)
 
 ### Good Reads
