@@ -13,8 +13,8 @@ class NeuralNetwork(object):
                 self.x = tf.placeholder(tf.float32, shape=[None, 784], name='x-input')
 
                 # Target output with shape [?, 10]
-                with tf.name_scope('target_input') as scope:
-                    self.y_ = tf.placeholder(tf.float32, shape=[None, 10], name='target-output')
+                with tf.name_scope('target') as scope:
+                    self.y_ = tf.placeholder(tf.float32, shape=[None, 10], name='target-input')
 
             # Hidden layer 1
             with tf.name_scope('output') as scope:
