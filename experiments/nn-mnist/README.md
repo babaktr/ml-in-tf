@@ -30,7 +30,7 @@ The network in this experiment has one fully connected layer. It takes every sin
 
 
 ## Results
-The implementation is really straight forward and should receive an accuracy around **88%** on the test set.
+The implementation is really straight forward and should receive an accuracy of ≈ 88% on the test set.
 <p align="center">
   <img src="../../images/plots/nn-mnist-plot.png", width="70%"/>
 </p>
