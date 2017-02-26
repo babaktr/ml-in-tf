@@ -27,10 +27,22 @@ The network in this experiment has one fully connected layer. It takes every sin
 |:-----:|:-------:|
 |784    | 10      | 
 
+## Parameters
+The customizable parameters of this experiment - and their default values - are as follows:
+
+* ```minibatches``` -  ```1000``` -Number of minibatches to run the training on.
+* ```minibatch_size``` - ```100``` - Number of samples in each minibatch.
+* ```status_update``` -  ```100``` - How often to print an status update.
+* ```random_seed``` - ```123``` -  Number of minibatches to run the training on.
+* ```learning_rate``` - ```0.05``` - Learning rate of the optimizer.
+* ```optimizer``` -  ```gradient_descent``` -  If another optimizer should be used [adam, rmsprop, gradient_descent]. Defaults to ```gradient_descent```.
+* ```run_test``` - ```True``` - If the final model should be tested.
+* ```use_gpu``` -  ```False``` - If TensorFlow operations should run on GPU rather than CPU.
 
 
-## Results
+## Experiment Results
 The implementation is really straight forward and should receive an accuracy of ≈ 88% on the test set.
+The plot below shows a standard run will all default parameters.
 <p align="center">
   <img src="../../images/plots/nn-mnist-plot.png", width="70%"/>
 </p>
