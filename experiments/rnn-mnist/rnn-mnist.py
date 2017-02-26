@@ -20,7 +20,7 @@ flags.DEFINE_integer('minibatch_size', 128, 'Number of samples in each minibatch
 flags.DEFINE_float('learning_rate', 0.001, 'Learning rate of the optimizer.')
 flags.DEFINE_integer('status_update', 100, 'How often to print an status update.')
 flags.DEFINE_integer('random_seed', 123, 'Sets the random seed.')
-flags.DEFINE_string('optimizer', 'adam', 'Specifices optimizer to use [adam, rmsprop]. Defaults to gradient descent')
+flags.DEFINE_string('optimizer', 'gradient_descent', 'Specifices optimizer to use [adam, gradient_descent, rmsprop]. Defaults to gradient descent')
 flags.DEFINE_boolean('run_test', True, 'If the final model should be tested')
 flags.DEFINE_boolean('use_gpu', False, 'If it should run the TensorFlow operations on the GPU rather than the CPU.')
 
@@ -75,7 +75,7 @@ if settings.run_test:
     print(' --- TESTING MODEL ---')
     x = 0
     accuracy = []
-    for n in range((len(mnist.test.images)/settings.minibatch_size)):
+    for n in range(int((len(mnist.test.images)/settings.minibatch_size))):
         # Create batches of size: minibatch_size
         lower_index = settings.minibatch_size * n
         upper_index = (settings.minibatch_size * n) + settings.minibatch_size
