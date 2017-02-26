@@ -40,13 +40,13 @@ class ConvolutionalNeuralNetwork(object):
             # Input
             with tf.name_scope('input') as scope:
                 self.x = tf.placeholder(tf.float32, shape=[None, 784], name='x-input')
-                with tf.name_scope('pre-process') as scope:
+                with tf.name_scope('input-preprocess') as scope:
                     # reshape to 28x28
                     x_img = tf.reshape(self.x, [-1,28,28,1])
 
-            # Target output of one value
-            with tf.name_scope('target_output') as scope:
-                self.y_ = tf.placeholder(tf.float32, shape=[None, 10], name='target-output')
+                # Target output of one value
+                with tf.name_scope('target_input') as scope:
+                    self.y_ = tf.placeholder(tf.float32, shape=[None, 10], name='target-output')
 
             # Convolutional layer 1
             with tf.name_scope('conv1') as scope:
@@ -86,9 +86,10 @@ class ConvolutionalNeuralNetwork(object):
                     h_pool2_flat = tf.reshape(h_pool2, [-1, 7*7*64])
                     h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
 
-            # Drop out to reduce overfitting
-            self.keep_prob = tf.placeholder(tf.float32, name='keep-prob')
-            h_fc1_drop = tf.nn.dropout(h_fc1, self.keep_prob)
+                # Drop out to reduce overfitting
+                with tf.name_scope('dropout') as scope:
+                    self.keep_prob = tf.placeholder(tf.float32, name='keep-prob')
+                    h_fc1_drop = tf.nn.dropout(h_fc1, self.keep_prob)
 
             # Output layer weights and biases
             with tf.name_scope('output') as scope:
@@ -99,20 +100,20 @@ class ConvolutionalNeuralNetwork(object):
                 with tf.name_scope('classification') as scope:
                     self.y = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
 
-            # Objective/Error function - Cross Entropy
-            with tf.name_scope('loss') as scope:
-                self.obj_function = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=self.y, labels=self.y_))
+            with tf.name_scope('optimizer') as scope:
+                 # Objective/Error function - Cross Entropy
+                with tf.name_scope('loss') as scope:
+                    self.loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=self.y, labels=self.y_))
 
-            with tf.name_scope('train') as scope:
                 if optimizer.lower() == 'adam':
                     # Adam Optimizer
-                    self.train_step = tf.train.AdamOptimizer(learning_rate).minimize(self.obj_function)
+                    self.train_step = tf.train.AdamOptimizer(learning_rate).minimize(self.loss)
                 elif optimizer.lower() == 'rmsprop':
                     # RMSProp
-                    self.train_step = tf.train.RMSPropOptimizer(learning_rate).minimize(self.obj_function)
+                    self.train_step = tf.train.RMSPropOptimizer(learning_rate).minimize(self.loss)
                 else: 
                     # Gradient Descent
-                    self.train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(self.obj_function)
+                    self.train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(self.loss)
 
             init = tf.global_variables_initializer()
             self.sess.run(init)
@@ -126,7 +127,7 @@ class ConvolutionalNeuralNetwork(object):
     Utilizes the optimizer and objectie function to train the network based on the input and target output.
     '''
     def train(self, x_input, target_output):
-        _, loss = self.sess.run([self.train_step, self.obj_function],
+        _, loss = self.sess.run([self.train_step, self.loss],
                                 feed_dict={self.x: x_input,
                                         self.y_: target_output,
                                         self.keep_prob: 0.5})

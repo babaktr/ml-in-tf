@@ -32,32 +32,36 @@ if settings.use_gpu:
 else:
     device = '/cpu:0'
 
-cnn_network = ConvolutionalNeuralNetwork(device, settings.random_seed, settings.learning_rate, settings.optimizer)
+network = ConvolutionalNeuralNetwork(device, settings.random_seed, settings.learning_rate, settings.optimizer)
 
 # Statistics summary writer
-summary_dir = '../../logs/deep-mnist-hidden{}-lr{}-minibatch{}-{}/'.format(10, settings.learning_rate, settings.minibatches, settings.optimizer)
-summary_writer = tf.summary.FileWriter(summary_dir, cnn_network.sess.graph)
-stats = Stats(cnn_network.sess, summary_writer, 2)
+summary_dir = '../../logs/cnn-mnist_minibatches-{}_minibatchsize-{}_lr-{}_optimizer-{}/'.format(
+    settings.minibatches, 
+    settings.minibatch_size, 
+    settings.learning_rate, 
+    settings.optimizer)
+
+summary_writer = tf.summary.FileWriter(summary_dir, network.sess.graph)
+stats = Stats(network.sess, summary_writer, 2)
 
 for i in range (settings.minibatches): 
     # Get minibatch
     batch = mnist.train.next_batch(settings.minibatch_size)
 
     # Calculate batch accuracy
-    acc = cnn_network.get_accuracy(batch[0], batch[1])
+    acc = network.get_accuracy(batch[0], batch[1])
 
     # Run training
-    loss = cnn_network.train(batch[0], batch[1])
+    loss = network.train(batch[0], batch[1])
 
     stats.update({'loss': loss, 'accuracy': acc, 'step': i})
 
     if i % settings.status_update == 0:
         # Print update
-        print 'Batch: {}, Loss: {}, Accuracy: {}'.format(i, 
-            format(loss, '.4f'), format(acc, '.4f'))
+        print('Minibatches done: {}, Loss: {}, Accuracy: {} %'.format(max(1,i), format(loss, '.4f'), format(acc, '.4f')))
 
-if settings.run_test:   
-    print ' '
-    print ' --- TESTING MODEL ---'
-    print('Accuracy on test set: {}'.format(cnn_network.get_accuracy(mnist.test.images, mnist.test.labels)))
+if settings.run_test:
+    print(' --- TESTING MODEL ---')
+    accuracy = network.get_accuracy(mnist.test.images, mnist.test.labels)
+    print('Accuracy on test set: {} %'.format(format(accuracy, '.4f')))
                     

@@ -58,7 +58,7 @@ It is currently under construction, but if you have any feedback, suggestions or
 </p>
 
 ### Implemented Examples
-* [Deep MNIST](/experiments/deep-mnist)
+* [CNN-MNIST](/experiments/cnn-mnist)
 
 ### Good Reads
 * [Convolutional Neural Networks (part of CS231 at Stanford)](http://cs231n.github.io/convolutional-networks/)
