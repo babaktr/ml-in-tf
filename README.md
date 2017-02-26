@@ -31,7 +31,7 @@ It is currently under construction, but if you have any feedback, suggestions or
 </p>
 
 ### Implemented Examples
-* [XOR](/experiments/xor)
+* [XOR](/experiments/xor) (_Work in progress_)
 * [MNIST](/experiments/mnist)
 * [NN-Gridworld](/experiments/nn-gridworld)
 
@@ -46,7 +46,7 @@ It is currently under construction, but if you have any feedback, suggestions or
 </p>
 
 ### Implemented Examples
-* [RNN-Gridworld](/experiments/rnn-gridworld)
+* [RNN-MNIST](/experiments/rnn-mnist) (_Work in progress_)
 
 ### Good reads
 * [The Unreasonable Effectiveness on Recurrent Neural Networks](http://karpathy.github.io/2015/05/21/rnn-effectiveness/)
