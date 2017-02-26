@@ -1,5 +1,9 @@
 # NN-MNIST Experiment
 
+<p align="center">
+  <img src="../../images/graphs/nn-mnist-graph.png", width="50%"/>
+</p>
+
 ## Get Started
 To get started, use the terminal to navigate to ```ml-in-tf/experiments/nn-mnist/```and run ```python mnist.py```.
 
@@ -9,12 +13,6 @@ To see the graph and plots using ```tensorboard```, use the terminal to navigate
 Starting TensorBoard on port <port>
 ```
 And then open up a browser and go to ```localhost:<port>```.
-
-
-## Graph
-<p align="center">
-  <img src="../../images/graphs/nn-mnist-graph.png", width="50%"/>
-</p>
 
 ## Plot
 <p align="center">
