@@ -15,7 +15,8 @@ flags = tf.app.flags
 # Network
 flags.DEFINE_integer('sequence_length', 28, 'Length of each RNN sequence.')
 flags.DEFINE_integer('input_size', 28, 'Size of each input.')
-flags.DEFINE_integer('hidden_size', 128, 'Number ofidden LSTM cells.')
+flags.DEFINE_integer('hidden_size', 128, 'Number of hidden cells.')
+flags.DEFINE_string('cell_type', 'lstm', 'Type of cell to use in the RNN.')
 
 # Optimizer
 flags.DEFINE_float('learning_rate', 0.001, 'Learning rate of the optimizer.')
@@ -46,14 +47,16 @@ network = RecurrentNeuralNetwork(
     settings.random_seed, 
     settings.hidden_size, 
     settings.input_size, 
-    settings.sequence_length, 
+    settings.sequence_length,
+    settings.cell_type, 
     settings.minibatch_size, 
     settings.learning_rate, 
     settings.optimizer)
 
 # Statistics summary writer
-summary_dir = '../../logs/rnn-mnist_hiddensize-{}_minibatches-{}_minibatchsize-{}_lr-{}_optimizer-{}/'.format(
+summary_dir = '../../logs/rnn-mnist_hiddensize-{}_celltype-{}_minibatches-{}_minibatchsize-{}_lr-{}_optimizer-{}/'.format(
     settings.hidden_size, 
+    settings.cell_type,
     settings.minibatches, 
     settings.minibatch_size, 
     settings.learning_rate, 

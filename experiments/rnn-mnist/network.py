@@ -1,7 +1,7 @@
 import tensorflow as tf
 
 class RecurrentNeuralNetwork(object):
-    def __init__(self, device, random_seed, hidden_size, input_size, sequence_length, batch_size, learning_rate, optimizer):
+    def __init__(self, device, random_seed, hidden_size, input_size, sequence_length, cell_type, batch_size, learning_rate, optimizer):
         self.sess = tf.Session()
 
         with tf.device(device):
@@ -23,13 +23,18 @@ class RecurrentNeuralNetwork(object):
                 # Target input with shape [?, 10]
                 with tf.name_scope('target_input') as scope:
                     self.y_ = tf.placeholder(tf.float32, shape=[None, 10], name='target-output')
-                
-            lstm_cell = tf.contrib.rnn.BasicLSTMCell(hidden_size, forget_bias=1.0, state_is_tuple=True)
-            with tf.name_scope('initial_state') as scope:
-                state = lstm_cell.zero_state(batch_size, dtype=tf.float32)
+            
+            if cell_type == 'rnn':
+                cell = tf.contrib.rnn.BasicRNNCell(hidden_size)
+                with tf.name_scope('initial_state') as scope:
+                    state = cell.zero_state(batch_size, dtype=tf.float32)
+                    #state = tf.placeholder(tf.float32, [batch_size, hidden_size])
+            else: #LSTM
+                cell = tf.contrib.rnn.BasicLSTMCell(hidden_size, forget_bias=1.0, state_is_tuple=True)
+                with tf.name_scope('initial_state') as scope:
+                    state = cell.zero_state(batch_size, dtype=tf.float32)
 
-
-            outputs, state = tf.contrib.rnn.static_rnn(lstm_cell, x_split, state)
+            outputs, state = tf.contrib.rnn.static_rnn(cell, x_split, state)
             
             # Output with shape [?, 10]
             with tf.name_scope('output') as scope:

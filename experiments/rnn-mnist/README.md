@@ -38,6 +38,8 @@ The customizable parameters of this experiment - and their default values - are 
 * ```sequence_length``` -  ```28``` -Length of each RNN sequence.
 * ```input_size``` -  ```28``` -Size of each input.
 * ```hidden_size``` -  ```128``` - Number of hidden LSTM cells.
+* ```cell_type``` -  ```lstm``` - Type of cell to use in the RNN.
+
 
 #### Optimizer
 * ```learning_rate``` - ```0.05``` - Learning rate of the optimizer.
@@ -54,8 +56,9 @@ to ```gradient_descent```.
 
 ## Experiment Results
 
-The implementation is really straight forward and should receive an accuracy of ≈97% on the test set.
-The plot below shows a standard run will all default parameters.
+While running this experiment, you can expect to receive an accuracy of around ≈94% using **RNN** as your ```cell_type```. However, going with the more robust **LSTM** cell should get you all the way to ≈97%.
+
+The plot below shows two runs with all default parameters where orange one represents **LSTM** while the blue one represents **RNN**.
 <p align="center">
   <img src="../../images/plots/rnn-mnist-plot.png", width="70%"/>
 </p>
