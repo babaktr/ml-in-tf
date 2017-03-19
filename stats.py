@@ -16,6 +16,8 @@ class Stats(object):
             scalar_summary_tags = ['episode/avg_q_max', 'episode/epsilon', 'episode/reward', 'episode/steps']
         elif stat_level == 4:
             scalar_summary_tags = ['network/loss', 'network/accuracy', 'episode/avg_q_max', 'episode/epsilon', 'episode/reward', 'episode/steps']
+        elif stat_level == 5:
+            scalar_summary_tags = ['network/policy_loss', 'network/value_loss', 'episode/avg_value', 'episode/avg_qmax', 'episode/reward', 'episode/steps']
 
         self.summary_placeholders = {}
         self.summary_ops = {}
@@ -41,7 +43,7 @@ class Stats(object):
             'episode/reward': dictionary['reward'],
             'episode/steps':dictionary['steps']
         }, dictionary['step'])
-    else: # self.stat_level == 4
+    elif self.stat_level == 4:
       self.inject_summary({
             'network/loss': dictionary['loss'],
             'network/accuracy': dictionary['accuracy'],
@@ -50,6 +52,16 @@ class Stats(object):
             'episode/reward': dictionary['reward'],
             'episode/steps':dictionary['steps']
         }, dictionary['step'])
+    else: #self.stat_level == 5
+      self.inject_summary({
+            'network/policy_loss': dictionary['policy_loss'],
+            'network/value_loss': dictionary['value_loss'],
+            'episode/avg_qmax': dictionary['avg_qmax'],
+            'episode/avg_value': dictionary['avg_value'],
+            'episode/reward': dictionary['reward'],
+            'episode/steps':dictionary['steps']
+        }, dictionary['step'])
+
 
   def inject_summary(self, tag_dict, t):
     summary_str_lists = self.sess.run([self.summary_ops[tag] for tag in tag_dict.keys()], {
