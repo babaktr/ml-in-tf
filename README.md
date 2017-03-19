@@ -15,8 +15,7 @@ It is currently under construction, but if you have any feedback, suggestions or
 
 ### Implemented Examples
 * [Q-Gridworld](/experiments/q-gridworld) 
-* [Deep Q-Network with Experience Replay](/experiments/dqn) (_Work in progress_)
-* [Asynchronous 1-step Deep Reinforcement Learning](https://github.com/babaktr/asynchronous_1step) (_Work in progress_)
+* [Classic Control with Policy Gradient](/experiments/pg-classic_control) (_Work in progress_)
 
 
 ### Good reads
@@ -34,6 +33,7 @@ It is currently under construction, but if you have any feedback, suggestions or
 * [XOR](/experiments/xor) (_Work in progress_)
 * [NN-MNIST](/experiments/nn-mnist) 
 * [NN-Gridworld](/experiments/nn-gridworld)
+
 
 ### Good Reads
 * [Machine Learning Crash Course](https://ml.berkeley.edu/blog/2016/11/06/tutorial-1/) - ([Part 1](https://ml.berkeley.edu/blog/2016/11/06/tutorial-1/), [Part 2](https://ml.berkeley.edu/blog/2016/12/24/tutorial-2/))
