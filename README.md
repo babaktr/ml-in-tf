@@ -16,6 +16,7 @@ It is currently under construction, but if you have any feedback, suggestions or
 ### Implemented Examples
 * [Q-Gridworld](/experiments/q-gridworld) 
 * [Classic Control with Policy Gradient](/experiments/pg-classic_control) (_Work in progress_)
+* [Deep Q-Learning in Atari](/experiments/dqn) (_Work in progress_)
 
 
 ### Good reads
